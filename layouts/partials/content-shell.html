@@ -21,7 +21,9 @@
 
   <article data-pagefind-body class="min-w-0 grow">
     <div id="content-header" class="animate">{{ .header | safeHTML }}</div>
-    <div id="content" class="max-w-none animate mt-8 md:min-w-[45ch] overflow-x-hidden {{ $prose }}">
+    {{- /* 标题下直接进入小节（没有导语）时收紧间距；有导语则保持原间距。 */ -}}
+    {{- $firstIsHeading := strings.HasPrefix (trim .body " \n") "<h2" -}}
+    <div id="content" class="max-w-none animate {{ if $firstIsHeading }}first-heading mt-4{{ else }}mt-8{{ end }} md:min-w-[45ch] overflow-x-hidden {{ $prose }}">
       {{ .body | safeHTML }}
     </div>
   </article>
