@@ -17,7 +17,7 @@
       <p>No posts yet.</p>
     {{- else }}
       <div class="grid gap-y-16 sm:grid-cols-[3fr_1fr] sm:gap-x-8">
-        <section aria-label="Blog posts list" class="animate" id="content">
+        <section aria-label="Blog posts list" class="animate overflow-x-hidden" id="content">
           <div class="mb-3 flex flex-col justify-between text-sm sm:mb-5 sm:flex-row">
             <span class="text-muted-foreground">
               Page {{ $paginator.PageNumber }} - Showing {{ len $paginator.Pages }} of {{ $total }} posts
@@ -38,7 +38,7 @@
         </section>
 
         {{- if or $categories $tags }}
-          <aside class="animate" id="sidebar">
+          <aside class="animate list-sidebar" id="sidebar">
             {{- /* 侧栏是一个固定高度的滚动区，分类多的时候（本站 66 个）会把 Tags
                    整个顶出视口。所以只列前 6 个，「View all」放进标题行而不是另起
                    一行 —— 既不占高度，也不会被下面的列表淹没。 */ -}}

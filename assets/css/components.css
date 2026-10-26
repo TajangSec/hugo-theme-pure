@@ -233,6 +233,15 @@ footer a {
     padding-top: 1.5rem !important;
     padding-bottom: 1.5rem !important;
   }
+  /* 博客列表页的侧栏是普通 grid 项，不是文章页的抽屉：
+     保持自适应高度，避免它在列表下方撑出 100vh 的空白。 */
+  aside#sidebar.list-sidebar {
+    height: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+  }
   #sidebar-shade {
     animation: 300ms fade-in;
   }
