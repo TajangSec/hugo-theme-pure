@@ -3,6 +3,10 @@
 用 [Hugo](https://gohugo.io/) 重建的 [`astro-theme-pure`](https://github.com/cworld1/astro-theme-pure) 主题。
 几乎完全一样，支持文章加密，文章分类，对一些细节做了处理。
 
+- 主题仓库：<https://github.com/TajangSec/hugo-theme-pure>
+- 作者主页：<https://github.com/TajangSec>
+- 示例站点：<https://h4cker.zip/>
+
 ---
 
 ## 目录结构
@@ -642,4 +646,5 @@ npm run css          # 重新生成 uno.css / chroma.css
 
 ## 许可
 
-与原版一致，见 [LICENSE](https://github.com/cworld1/astro-theme-pure/blob/main/LICENSE)。
+Apache-2.0，见 [LICENSE](https://github.com/TajangSec/hugo-theme-pure/blob/main/LICENSE)。
+主题与视觉设计源自 [astro-theme-pure](https://github.com/cworld1/astro-theme-pure)。
