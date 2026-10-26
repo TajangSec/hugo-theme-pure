@@ -1,0 +1,29 @@
+{{- /* Renders `params.links.logbook` as a timeline — used by the links page for
+       the “Link History Book”. Each entry is `{ date, content }`. */ -}}
+{{- $events := site.Params.links.logbook -}}
+{{- with $events -}}
+  <div>
+    <ul class="ps-0 sm:ps-2">
+      {{- range $index, $event := . }}
+        <li class="group relative flex list-none gap-x-3 rounded-full ps-0 sm:gap-x-2">
+          <span
+            class="z-10 my-2 ms-2 h-3 w-3 min-w-3 rounded-full border-2 border-muted-foreground transition-transform group-hover:scale-125"
+          ></span>
+          {{- if ne $index (sub (len $events) 1) }}
+            <span
+              class="absolute start-[12px] top-[20px] w-1 bg-border"
+              style="height:calc(100% - 4px)"
+            ></span>
+          {{- end }}
+          <div class="flex gap-2 max-sm:flex-col">
+            <samp
+              class="w-fit grow-0 rounded-md py-1 text-sm max-sm:bg-card max-sm:px-2 sm:min-w-[82px] sm:text-right"
+              >{{ $event.date }}</samp
+            >
+            <div>{{ $event.content | markdownify }}</div>
+          </div>
+        </li>
+      {{- end }}
+    </ul>
+  </div>
+{{- end -}}
