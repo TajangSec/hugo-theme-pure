@@ -8,7 +8,7 @@
     "preview": "hugo server",
     "encrypt": "node scripts/encrypt-posts.mjs",
     "search": "pagefind --site public",
-    "update:theme": "git submodule update --remote themes/pure && cp themes/pure/starter/scripts/encrypt-posts.mjs scripts/encrypt-posts.mjs && git add themes/pure scripts/encrypt-posts.mjs && (git diff --cached --quiet || git commit -m 'chore: update theme') && npm run encrypt"
+    "update:theme": "git submodule update --remote themes/pure && cp themes/pure/starter/scripts/encrypt-posts.mjs scripts/encrypt-posts.mjs && git add themes/pure scripts/encrypt-posts.mjs && (git diff --cached --quiet || git commit -m '更新：同步主题') && npm run encrypt"
   },
   "devDependencies": {
     "pagefind": "^1.4.0"
