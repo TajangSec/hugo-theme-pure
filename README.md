@@ -58,28 +58,53 @@ cp -r hugo-theme-pure /path/to/my-site/themes/pure
 hugo server
 ```
 
-主题的样式与交互已经包含在仓库中，不需要安装 Node 依赖。
+主题的样式与交互已经包含在仓库中。**不使用加密和站内搜索时，不需要 Node**：
+
+| 你要做的事 | 命令 |
+| --- | --- |
+| 日常写作、本地预览 | `hugo server` |
+| 生成发布文件 | `hugo` |
+| 文章用 `password` 加密 | `npm run dev` / `npm run build` |
+| 需要站内搜索（Pagefind） | `npm run build` |
+| 只启动 Hugo、不重新加密 | `npm run preview` |
+
+### 日常使用（加密与搜索）
+
+加密必须发生在 Hugo 渲染**之前**（否则明文会进入 `public/`），Pagefind 索引必须
+在构建**之后**生成。使用这两项功能时，把本仓库 `starter/` 下的文件复制到站点根目录：
+
+```
+your-site/
+├── package.json                 # dev / build / preview / encrypt / search
+└── scripts/encrypt-posts.mjs    # 加密脚本
+```
+
+然后：
+
+```bash
+npm install       # 只需一次
+
+npm run dev       # 预览：先加密文章，再启动 Hugo
+npm run build     # 发布：加密 → hugo --minify → Pagefind 索引
+npm run preview   # 只启动 Hugo，不重新加密
+```
+
+> 只跑裸 `hugo` 时，带 `password` 的文章会提示“密文尚未生成”；开发模式下
+> 搜索页会显示 “Dev mode, the search is disabled.”，搜索请在 `npm run build`
+> 后用静态服务器预览 `public/`。
 
 ### 开发主题 / 贡献
 
-本仓库只包含主题源码，不含演示站与 Node 工具链。修改模板样式、调试加密文章
-或重新生成 `uno.css` 时，需要在配套演示站（包含 `package.json`、`uno.config.ts`
-与 `scripts/`）中工作：
+本仓库不包含 UnoCSS 构建工具链。修改模板里的 class、重新生成 `uno.css` 时，
+需要在配套演示站（包含 `uno.config.ts` 与完整的 `package.json`）中运行：
 
 ```bash
 npm install
-npm run dev        # 启动前先运行 scripts/encrypt-posts.mjs
+npm run css        # 重新生成 uno.css / chroma.css
 ```
 
-完整的发布构建流程：
-
-```bash
-npm run build      # = css → encrypt → hugo --minify → pagefind
-```
-
-> 加密文章必须在 Hugo 渲染**之前**完成加密（`public/` 中不能出现明文），
-> 所以开发与发布时请使用 `npm run dev` 或 `npm run build`，不要只跑裸 `hugo`。
-> 仅使用主题的站点不需要 Node：主题内的样式产物已预生成。
+> 加密文章必须在 Hugo 渲染**之前**完成加密，所以开发与发布请使用
+> `npm run dev` 或 `npm run build`，不要只跑裸 `hugo`。
 
 ---
 

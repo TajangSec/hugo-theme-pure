@@ -1,0 +1,14 @@
+{
+  "name": "my-blog",
+  "private": true,
+  "scripts": {
+    "dev": "npm run encrypt && hugo server --disableFastRender",
+    "build": "npm run encrypt && hugo --minify && npm run search",
+    "preview": "hugo server",
+    "encrypt": "node scripts/encrypt-posts.mjs",
+    "search": "pagefind --site public"
+  },
+  "devDependencies": {
+    "pagefind": "^1.4.0"
+  }
+}
