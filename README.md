@@ -278,6 +278,8 @@ highlightColor: '#659EB9'        # 同上，优先级更高；首页也用它
 pin: true                        # 置顶
 toc: false                       # 关掉右侧目录
 comment: true
+math: true                       # 开启该页的公式渲染
+mermaid: true                    # 开启该页的 Mermaid 图表渲染
 ---
 ```
 
@@ -420,7 +422,7 @@ slug: '{{ substr (md5 (printf "%s|%d" (replace .Name "-" "") now.Unix)) 0 6 | lo
 | 资源 | 只在 |
 | --- | --- |
 | KaTeX 样式表 | 该页有公式（`math` 开启且用了 `$…$`） |
-| Mermaid（`import()` 动态加载） | 该页有 ```mermaid 代码块 |
+| Mermaid（`import()` 动态加载） | 该页 `mermaid: true` 且用了 ```mermaid 代码块 |
 | Medium Zoom（图片灯箱） | 该页正文里有图片 |
 | qrcodejs | 文章页的版权卡片 |
 | Pagefind UI | 搜索页 |
