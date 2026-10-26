@@ -108,6 +108,58 @@ npm run css        # 重新生成 uno.css / chroma.css
 
 ---
 
+## 更新主题
+
+以 git submodule 安装时，更新分三步：
+
+```bash
+# 1. 拉取主题最新提交
+git submodule update --remote themes/pure
+
+# 2. 在站点仓库记录新的子模块指针
+git add themes/pure
+git commit -m "chore: update theme"
+
+# 3. 重新构建
+npm run build        # 使用了加密或搜索
+# 或
+hugo
+```
+
+### 注意事项
+
+- **不要**直接 `cd themes/pure && git pull`：子模块通常处于 detached HEAD，
+  请使用 `git submodule update --remote`。
+- 站点根目录的 `scripts/encrypt-posts.mjs` 是从 `starter/` 复制的，**不会**
+  随子模块更新。主题修改了加密脚本时，需要手动同步：
+
+  ```bash
+  cp themes/pure/starter/scripts/encrypt-posts.mjs scripts/encrypt-posts.mjs
+  ```
+
+- 更新后查看本 README 与提交记录；如果依赖有变化，重新运行 `npm install`。
+
+### 回滚
+
+```bash
+cd themes/pure
+git log --oneline          # 找到要回到的提交
+git checkout <commit>
+cd ../..
+git add themes/pure
+git commit -m "chore: pin theme to <commit>"
+```
+
+### 克隆带子模块的站点
+
+```bash
+git clone --recurse-submodules <your-site-repo>
+# 或克隆后
+git submodule update --init --recursive
+```
+
+---
+
 ## 配置
 
 所有主题参数都在 `hugo.toml` 的 `[params]` 下，命名尽量对应原版 `src/site.config.ts`。
