@@ -817,7 +817,6 @@ initEncryptedPost()
   const start = new Date(el.dataset.start)
   if (Number.isNaN(start.getTime())) return
 
-  const pad = (value) => String(value).padStart(2, '0')
   const update = () => {
     let diff = Math.max(0, Date.now() - start.getTime())
     const days = Math.floor(diff / 86400000)
@@ -826,7 +825,7 @@ initEncryptedPost()
     diff %= 3600000
     const minutes = Math.floor(diff / 60000)
     const seconds = Math.floor((diff % 60000) / 1000)
-    el.textContent = `${days} days ${pad(hours)} hours ${pad(minutes)} minutes ${pad(seconds)} seconds`
+    el.textContent = `${days} 天 ${hours} 小时 ${minutes} 分钟 ${seconds} 秒`
   }
 
   update()
