@@ -1,0 +1,33 @@
+{{- /* Ported from `src/pages/tags/[tag]/[...page].astro` */ -}}
+{{ define "main" }}
+  {{- $page := . -}}
+  {{- /* Page size comes from `pagination.pagerSize` in the site config. */ -}}
+  {{- $paginator := $page.Paginate $page.Pages -}}
+  {{- $plural := $page.Data.Plural -}}
+  {{- $label := $plural | title -}}
+  {{- /* Tags keep the `#` affix; categories are plain words. */ -}}
+  {{- $prefix := cond (eq $plural "tags") "#" "" -}}
+  {{ partial "button.html" (dict "title" "Back" "href" ("blog" | relLangURL) "variant" "back") }}
+  <main class="mt-6 lg:mt-10">
+    <div id="content-header" class="animate">
+      <h1 class="mb-6 flex items-end gap-x-2 text-3xl font-medium">
+        {{ $label }}:
+        <span class="text-2xl">{{ $prefix }}{{ $page.Title }}</span>
+      </h1>
+    </div>
+
+    <section id="content" class="animate" aria-label="Blog post list">
+      <ul class="flex flex-col gap-y-3 text-start">
+        {{- range $paginator.Pages }}
+          {{ partial "post-preview.html" (dict "post" . "detailed" true) }}
+        {{- end }}
+      </ul>
+      {{ partial "paginator.html" (dict
+        "paginator" $paginator
+        "prevText" (printf "← Previous %s" $label)
+        "nextText" (printf "Next %s →" $label)
+        )
+      }}
+    </section>
+  </main>
+{{ end }}

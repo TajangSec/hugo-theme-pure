@@ -1,0 +1,16 @@
+{{- /*
+  Link render hook — mirrors the Astro theme's `rehypeExternalLinks` pass:
+  external links get `rel="nofollow noopener noreferrer"`, `target="_blank"`,
+  and a trailing ` ↗` hint wrapped in `user-select:none` so it is not copied.
+
+  The arrow's text and style come from `params.content.externalLinks`.
+*/ -}}
+{{- $dest := .Destination -}}
+{{- $external := or (hasPrefix $dest "http://") (hasPrefix $dest "https://") (hasPrefix $dest "//") -}}
+{{- $cfg := site.Params.content.externalLinks -}}
+<a
+  href="{{ $dest }}"
+  {{- with .Title }} title="{{ . }}"{{ end }}
+  {{- if $external }} rel="nofollow noopener noreferrer" target="_blank"{{ end }}
+  >{{ .Text | safeHTML }}{{ if $external }}<span{{ with $cfg.properties }}{{ range $k, $v := . }} {{ printf `%s="%s"` $k $v | safeHTMLAttr }}{{ end }}{{ end }}>{{ $cfg.content | default " ↗" }}</span>{{ end }}</a
+>

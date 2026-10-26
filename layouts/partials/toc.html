@@ -1,0 +1,42 @@
+{{- /* Ported from `packages/pure/components/pages/TOC.astro` + `TOCHeading.astro`
+       Params: page */ -}}
+{{- define "pure/toc-heading" -}}
+  <li>
+    <div class="relative">
+      <span
+        class="absolute top-[5%] w-[2px] rounded transition-colors duration-300 [&.highlight-bg]:bg-primary [&.is-read]:bg-border"
+      ></span>
+      <a
+        aria-label="Scroll to section: {{ .Title | plainify }}"
+        class="toc-item line-clamp-2 px-3 py-1 ms-2 text-foreground/75 transition-all hover:text-foreground [&.highlight]:font-medium [&.highlight]:text-primary [&.highlight-bg-translucent]:bg-muted{{ if gt .Level 2 }} ps-7{{ end }}"
+        {{ printf `href="#%s"` (replace .ID `"` "") | safeHTMLAttr }}>{{ .Title | safeHTML }}</a
+      >
+    </div>
+    {{- with .Headings }}
+      <ul>
+        {{- range . }}
+          {{- template "pure/toc-heading" . }}
+        {{- end }}
+      </ul>
+    {{- end }}
+  </li>
+{{- end -}}
+
+{{- $headings := .page.Fragments.Headings -}}
+{{- with $headings -}}
+  {{- /* Hugo returns a synthetic level-0 root wrapping the real headings. */ -}}
+  {{- $top := . -}}
+  {{- if and (eq (len .) 1) (eq (index . 0).Level 0) -}}
+    {{- $top = (index . 0).Headings -}}
+  {{- end -}}
+  {{- with $top }}
+    <toc-heading>
+      <h2 class="font-medium">TABLE OF CONTENTS</h2>
+      <ul class="mt-4">
+        {{- range . }}
+          {{- template "pure/toc-heading" . }}
+        {{- end }}
+      </ul>
+    </toc-heading>
+  {{- end }}
+{{- end }}

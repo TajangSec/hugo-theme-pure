@@ -1,0 +1,17 @@
+{{- /* Generic section list (any section other than `blog`).
+       Falls back to the CommonPage look. */ -}}
+{{ define "main" }}
+  {{- $page := . -}}
+  {{- $sidebar := "" -}}
+  {{- if $page.Fragments.Headings -}}
+    {{- $sidebar = partial "toc.html" (dict "page" $page) -}}
+  {{- end -}}
+  {{ partial "content-shell.html" (dict
+    "page" $page
+    "back" ($page.Params.back | default "/")
+    "sidebar" $sidebar
+    "header" (partial "common-header.html" (dict "page" $page))
+    "body" $page.Content
+    )
+  }}
+{{ end }}

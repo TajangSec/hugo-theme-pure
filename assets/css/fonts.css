@@ -1,0 +1,95 @@
+/* Satoshi — self-hosted, latin subset, weights 400/500 × normal/italic.
+ *
+ * These are the same files astro-theme-pure serves (its Astro font service pulls
+ * them from Fontshare at build time). Satoshi is free for personal and commercial
+ * use under the ITF Free Font License — see https://www.fontshare.com/fonts/satoshi
+ *
+ * To swap in your own build, drop the woff2 files into `themes/pure/static/fonts/`
+ * (or your site's `static/fonts/`) under these names.
+ */
+@font-face {
+  font-family: 'Satoshi';
+  src: url('{{ "fonts/satoshi-400.woff2" | relURL }}') format('woff2');
+  font-display: swap;
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('{{ "fonts/satoshi-400-italic.woff2" | relURL }}') format('woff2');
+  font-display: swap;
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('{{ "fonts/satoshi-500.woff2" | relURL }}') format('woff2');
+  font-display: swap;
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('{{ "fonts/satoshi-500-italic.woff2" | relURL }}') format('woff2');
+  font-display: swap;
+  font-weight: 500;
+  font-style: italic;
+}
+
+/* Metric-matched fallback: keeps the layout from shifting while the webfont
+ * loads, and gives the same text colour / weight appearance if it never does.
+ * The overrides are the ones Astro's font service generates for Satoshi. */
+@font-face {
+  font-family: 'Satoshi Fallback';
+  src: local('Arial');
+  font-display: swap;
+  font-weight: 400;
+  font-style: normal;
+  size-adjust: 98.9231%;
+  ascent-override: 102.0995%;
+  descent-override: 24.2613%;
+  line-gap-override: 10.1089%;
+}
+@font-face {
+  font-family: 'Satoshi Fallback';
+  src: local('Arial');
+  font-display: swap;
+  font-weight: 400;
+  font-style: italic;
+  size-adjust: 98.9231%;
+  ascent-override: 102.0995%;
+  descent-override: 24.2613%;
+  line-gap-override: 10.1089%;
+}
+@font-face {
+  font-family: 'Satoshi Fallback';
+  src: local('Arial');
+  font-display: swap;
+  font-weight: 500;
+  font-style: normal;
+  size-adjust: 98.9231%;
+  ascent-override: 102.0995%;
+  descent-override: 24.2613%;
+  line-gap-override: 10.1089%;
+}
+@font-face {
+  font-family: 'Satoshi Fallback';
+  src: local('Arial');
+  font-display: swap;
+  font-weight: 500;
+  font-style: italic;
+  size-adjust: 98.9231%;
+  ascent-override: 102.0995%;
+  descent-override: 24.2613%;
+  line-gap-override: 10.1089%;
+}
+
+:root {
+  --font-sans:
+    'Satoshi', 'Satoshi Fallback', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+}
+
+html {
+  font-family: var(--font-sans);
+}

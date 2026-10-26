@@ -1,0 +1,15 @@
+{{- /* Ported from `packages/pure/components/pages/Paginator.astro`
+       Params: paginator, prevText, nextText */ -}}
+{{- $paginator := .paginator -}}
+{{- $prevText := .prevText | default "Previous" -}}
+{{- $nextText := .nextText | default "Next" -}}
+{{- if or $paginator.HasPrev $paginator.HasNext }}
+  <nav class="mt-4 flex items-center gap-x-4 sm:mt-6">
+    {{- if $paginator.HasPrev }}
+      <a class="me-auto py-2" href="{{ $paginator.Prev.URL }}">{{ $prevText }}</a>
+    {{- end }}
+    {{- if $paginator.HasNext }}
+      <a class="ms-auto py-2" href="{{ $paginator.Next.URL }}">{{ $nextText }}</a>
+    {{- end }}
+  </nav>
+{{- end }}

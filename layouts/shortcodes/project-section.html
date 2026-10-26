@@ -1,0 +1,54 @@
+{{- /* Ported from `src/components/projects/ProjectSection.astro`
+       Usage:
+         {{< project-section >}}
+         🎨 Astro Theme Pure | A simple, fast theme | github:https://…, site:https://…
+         {{< /project-section >}}
+       Each line is `name | description | type:href, type:href`. */ -}}
+{{- $icons := dict "github" "github-circle" "site" "earth" "doc" "document" "release" "package" -}}
+{{- $lines := slice -}}
+{{- range (split (trim .Inner "\n") "\n") -}}
+  {{- $line := trim . " \r" -}}
+  {{- if $line }}{{ $lines = $lines | append $line }}{{ end -}}
+{{- end -}}
+<div class="not-prose {{ .Get "class" }}">
+  <div class="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2 sm:gap-y-4">
+    {{- range $lines }}
+      {{- $parts := split . "|" -}}
+      {{- $name := trim (index $parts 0) " " -}}
+      {{- $desc := "" -}}
+      {{- if gt (len $parts) 1 }}{{ $desc = trim (index $parts 1) " " }}{{ end -}}
+      {{- $links := slice -}}
+      {{- if gt (len $parts) 2 -}}
+        {{- range split (trim (delimit (after 2 $parts) "|") " ") "," -}}
+          {{- $kv := split (trim . " ") ":" -}}
+          {{- if ge (len $kv) 2 -}}
+            {{- $href := trim (delimit (after 1 $kv) ":") " " -}}
+            {{- $links = $links | append (dict "type" (trim (index $kv 0) " ") "href" $href) -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+      <div class="relative overflow-hidden rounded-xl border">
+        <div class="relative z-10 flex flex-col gap-y-1 px-2 py-1.5 sm:px-3 sm:py-2">
+          <a
+            class="line-clamp-1 font-medium text-foreground no-underline transition-colors"
+            {{ with $links }}href="{{ (index . 0).href }}"{{ end }}
+            target="_blank">{{ $name }}</a
+          >
+          <div class="line-clamp-2 leading-snug text-muted-foreground sm:h-12">{{ $desc }}</div>
+          <div class="flex flex-row items-center gap-x-2 sm:gap-x-3">
+            {{- range $links }}
+              <a
+                href="{{ .href }}"
+                class="rounded-full bg-muted p-1 text-muted-foreground transition-colors sm:p-1.5"
+                aria-label="{{ .type }}"
+                target="_blank"
+              >
+                {{ partial "icon.html" (dict "name" (index $icons .type | default "link") "class" "size-5") }}
+              </a>
+            {{- end }}
+          </div>
+        </div>
+      </div>
+    {{- end }}
+  </div>
+</div>

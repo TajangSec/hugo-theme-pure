@@ -1,0 +1,16 @@
+{{- /* Ported from the "apply tip" block of `src/pages/links/index.astro`.
+       Clicking a value copies it and fires the toast event. */ -}}
+{{- /* Referencing .Inner keeps Hugo happy when the shortcode is self-closed (`{{< x />}}`). */ -}}
+{{- $_ := .Inner -}}
+{{- $tips := site.Params.links.applyTip -}}
+<blockquote class="not-prose grid grid-cols-[auto_1fr] gap-x-2 break-words border-s-4 ps-4">
+  {{- range $tips }}
+    <span class="text-end">{{ .name }}:</span>
+    <samp
+      class="cursor-pointer"
+      data-copy="{{ .val }}"
+      onclick="navigator.clipboard.writeText(this.dataset.copy);document.dispatchEvent(new CustomEvent('toast',{detail:{message:'Copied \'' + this.dataset.copy + '\' to clipboard!'}}))"
+      >{{ .val }}</samp
+    >
+  {{- end }}
+</blockquote>

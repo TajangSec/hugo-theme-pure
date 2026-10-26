@@ -1,0 +1,12 @@
+{{- /* Ported from `packages/pure/utils/reading-time.ts`
+       Counts CJK characters individually (skipping CJK punctuation) and
+       whitespace-separated words otherwise; 200 "words" per minute. */ -}}
+{{- $text := . | default "" -}}
+{{- $cjk := len (findRE `[\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}]` $text) -}}
+{{- $latin := replaceRE `[\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}]` " " $text -}}
+{{- $latin = replaceRE `[\x{3000}-\x{303F}\x{FF00}-\x{FFEF}]` " " $latin -}}
+{{- $words := add $cjk (len (findRE `\S+` $latin)) -}}
+{{- $wpm := 200 -}}
+{{- with site.Params.readingTime }}{{ with .wpm }}{{ $wpm = . }}{{ end }}{{ end -}}
+{{- $minutes := math.Ceil (div (float $words) (float $wpm)) -}}
+{{- printf "%d min" (int $minutes) -}}

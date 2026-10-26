@@ -1,0 +1,123 @@
+{{- /*
+  Code block render hook — reproduces the chrome that astro-theme-pure adds via
+  Shiki transformers (`updateStyle`, `addTitle`, `addLanguage`, `addCopyButton`,
+  `addCollapse`) plus the official notation transformers (`++`, `--`,
+  `highlight:N`).
+
+  Output shape:
+
+    <div class="code-block highlight">
+      <pre class="chroma"><code>…</code></pre>
+      <div class="title">…</div>                   (optional)
+      <span class="language">ts</span>
+      <button class="copy">…</button>
+      <button class="collapse-toggle">…</button>   (only when long)
+      <div class="collapse-fade"></div>
+    </div>
+*/ -}}
+
+{{- $lang := .Type | default "text" -}}
+{{- $collapseAfter := int (default 15 site.Params.codeBlock.collapseAfter) -}}
+{{- $inner := strings.TrimRight "\n" .Inner -}}
+{{- $lines := split $inner "\n" -}}
+
+{{- /* ---- parse notation comments -------------------------------------- */ -}}
+{{- $hl := slice -}}
+{{- $addLines := slice -}}
+{{- $delLines := slice -}}
+{{- $clean := slice -}}
+{{- $stripRe := `(?:^|\s)(?:\/\/|#|--|<!--)\s*\[!code\s*(?:highlight(?::\d+)?|\+\+|--|focus)\]\s*(?:-->)?\s*$` -}}
+{{- range $idx, $raw := $lines -}}
+  {{- $n := add $idx 1 -}}
+  {{- $hm := findRESubmatch `\[!code\s*highlight(?::(\d+))?\]` $raw 1 -}}
+  {{- if gt (len $hm) 0 -}}
+    {{- $count := 1 -}}
+    {{- with index (index $hm 0) 1 -}}
+      {{- $count = int . -}}
+    {{- end -}}
+    {{- range seq $count -}}
+      {{- $hl = $hl | append (add $n (sub . 1)) -}}
+    {{- end -}}
+  {{- else if gt (len (findRE `\[!code\s*\+\+\]` $raw 1)) 0 -}}
+    {{- $addLines = $addLines | append $n -}}
+  {{- else if gt (len (findRE `\[!code\s*--\]` $raw 1)) 0 -}}
+    {{- $delLines = $delLines | append $n -}}
+  {{- end -}}
+  {{- $clean = $clean | append (replaceRE $stripRe "" $raw) -}}
+{{- end -}}
+{{- /* Notation is parsed first, then the escape shiki uses to *display* a
+     marker literally (`[\!code --]`) is removed. */ -}}
+{{- $code := delimit $clean "\n" | replaceRE `\[\\!code` "[!code" -}}
+
+{{- /* ---- highlight ---------------------------------------------------- */ -}}
+{{- /* Chroma fence options come straight from Hugo's `.Options`, which already
+     understands `{hl_lines=["9-12",14,16],linenostart=78,linenos=…}`:
+       - `hl_lines`    line numbers and ranges to highlight
+       - `linenostart` first line number
+       - `linenos`     `inline` (default here) / `table` / `false`
+     Passing `.Options` through unchanged lets Hugo do the 1-based → internal
+     conversion; hand-rolling it produced wrong line numbers. */ -}}
+{{- $chromaOpts := dict "noClasses" false "lineNos" "inline" "lineNumbersInTable" false -}}
+{{- with .Options -}}
+  {{- $chromaOpts = merge $chromaOpts . -}}
+{{- end -}}
+{{- /* The `// [!code highlight]` notation only applies when the fence itself
+     did not ask for highlights — an explicit `hl_lines` wins. */ -}}
+{{- if and $hl (not (index $chromaOpts "hl_lines")) -}}
+  {{- $chromaOpts = merge $chromaOpts (dict "hl_lines" (delimit $hl " ")) -}}
+{{- end -}}
+{{- $html := transform.Highlight $code $lang $chromaOpts -}}
+{{- /* When Chroma has no lexer for the language it degrades to a bare
+     `<pre><code>` — no wrapper, no line numbers, so the chrome below would be
+     dropped. Fall back to plaintext highlighting and keep the original label
+     on the badge. */ -}}
+{{- if not (hasPrefix $html `<div class="highlight">`) -}}
+  {{- $html = transform.Highlight $code "text" $chromaOpts -}}
+{{- end -}}
+
+{{- /* ---- re-inject per-line classes ----------------------------------- */ -}}
+{{- if or $hl $addLines $delLines -}}
+  {{- $html = replaceRE `<span class="line[^"]*">` `<span class="line">` $html -}}
+  {{- $parts := split $html `<span class="line">` -}}
+  {{- $out := slice (index $parts 0) -}}
+  {{- range $i, $body := after 1 $parts -}}
+    {{- $n := add $i 1 -}}
+    {{- $cls := slice -}}
+    {{- if in $hl $n }}{{ $cls = $cls | append "hl" }}{{ end -}}
+    {{- if in $addLines $n }}{{ $cls = $cls | append "diff" "add" }}{{ end -}}
+    {{- if in $delLines $n }}{{ $cls = $cls | append "diff" "remove" }}{{ end -}}
+    {{- if $cls -}}
+      {{- $out = $out | append (printf `<span class="line %s">%s` (delimit $cls " ") $body) -}}
+    {{- else -}}
+      {{- $out = $out | append (printf `<span class="line">%s` $body) -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $html = delimit $out "" -}}
+{{- end -}}
+
+{{- /* ---- options ------------------------------------------------------ */ -}}
+{{- /* Hugo parses `{title="…"}` into .Attributes; a bare `title="…"` (the
+     Astro syntax) is dropped by Goldmark, so use the braced form. */ -}}
+{{- $title := "" -}}
+{{- with .Attributes.title }}{{ $title = . }}{{ end -}}
+{{- $langLabel := .Type -}}
+{{- with .Attributes.lang }}{{ $langLabel = . }}{{ end -}}
+{{- $collapsed := gt (len $clean) $collapseAfter -}}
+
+{{- /* Chroma wraps the block in `<div class="highlight">…</div>`; tag it and
+     append the chrome as the wrapper's last children. */ -}}
+{{- $newWrapper := printf `<div class="code-block highlight%s">` (cond $collapsed " collapsed" "") -}}
+{{- $html = replace $html `<div class="highlight">` $newWrapper 1 -}}
+
+{{- $chrome := "" -}}
+{{- with $title -}}
+  {{- $chrome = printf `<div class="title text-sm text-muted-foreground px-3 py-1 rounded-lg border">%s</div>` . -}}
+{{- end -}}
+{{- $chrome = printf `%s<span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">%s</span>` $chrome $lang -}}
+{{- $chrome = printf `%s<button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code"><div class="ready">%s</div><div class="success hidden">%s</div></button>` $chrome (partial "icon.html" (dict "name" "clipboard" "class" "size-5")) (partial "icon.html" (dict "name" "file-check" "class" "size-5")) -}}
+{{- if $collapsed -}}
+  {{- $chrome = printf `%s<button class="collapse-toggle bg-card text-muted-foreground rounded-lg m-2" aria-label="Toggle collapse code block">%s<span class="desc"> code</span></button><div class="collapse-fade"></div>` $chrome (partial "icon.html" (dict "name" "arrow-down" "class" "size-5")) -}}
+{{- end -}}
+
+{{- $html = replaceRE `</div>$` (printf "%s</div>" $chrome) $html -}}
+{{ $html | safeHTML }}

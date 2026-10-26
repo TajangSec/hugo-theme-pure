@@ -1,0 +1,25 @@
+{{- /* Bundles the theme stylesheets. Order mirrors the Astro build output:
+       reset → UnoCSS (typography + utilities) → global.css → app.css → components.css */ -}}
+{{- $fonts := resources.Get "css/fonts.css" | resources.ExecuteAsTemplate "css/pure-fonts.css" . -}}
+{{- $sheets := slice
+  (resources.Get "css/reset.css")
+  $fonts
+  (resources.Get "css/uno.css")
+  (resources.Get "css/global.css")
+  (resources.Get "css/app.css")
+  (resources.Get "css/components.css")
+-}}
+{{- with resources.Get "css/chroma.css" -}}
+  {{- $sheets = $sheets | append . -}}
+{{- end -}}
+{{- $css := $sheets | resources.Concat "css/pure.css" -}}
+{{- if hugo.IsProduction -}}
+  {{- $css = $css | minify | fingerprint -}}
+{{- end -}}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}"{{ if hugo.IsProduction }} integrity="{{ $css.Data.Integrity }}"{{ end }} />
+{{- if .Store.Get "hasMath" }}
+  <link
+    rel="stylesheet"
+    href="{{ site.Params.npmCDN | default "https://cdn.jsdelivr.net/npm" }}/katex@0.16.47/dist/katex.min.css"
+  />
+{{- end }}

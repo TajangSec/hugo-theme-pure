@@ -1,0 +1,60 @@
+{{ define "main" }}
+  {{- $page := . -}}
+  {{- $p := site.Params -}}
+  {{- $logo := $p.logo.src | default "/images/avatar.png" -}}
+  <main class="flex w-full flex-col items-center">
+    <section class="animate mb-10 flex flex-col items-center gap-y-7" id="content-header">
+      <img
+        src="{{ $logo | relURL }}"
+        alt="{{ $p.logo.alt | default "Profile" }}"
+        class="h-28 w-auto rounded-full border p-1"
+        loading="eager"
+        fetchpriority="high"
+      />
+
+      <div class="flex flex-col items-center gap-y-4">
+        <h1 class="text-3xl font-medium">{{ $p.author }}</h1>
+        <div class="flex flex-wrap justify-center gap-x-7 gap-y-3">
+          {{- with $p.location }}
+            <div class="flex flex-row items-center justify-center gap-x-2">
+              {{ partial "icon.html" (dict "name" "location" "class" "size-5") }}
+              <p>{{ . }}</p>
+            </div>
+          {{- end }}
+          {{- with $p.sourceCode }}
+            <a
+              class="flex flex-row items-center justify-center gap-x-2 hover:opacity-75 transition-all"
+              href="{{ . }}"
+              target="_blank"
+            >
+              {{ partial "icon.html" (dict "name" "github" "class" "size-5") }}
+              <p>Source code</p>
+            </a>
+          {{- end }}
+        </div>
+      </div>
+
+      {{- /* Get template */}}
+      {{- with $p.getTemplate }}
+        <a
+          href="{{ . }}"
+          target="_blank"
+          class="flex flex-row items-center gap-x-3 rounded-full border bg-background px-4 py-2 text-sm shadow-sm transition-shadow hover:shadow-md"
+        >
+          <span class="relative flex items-center justify-center">
+            <span
+              class="absolute size-2 animate-ping rounded-full border border-green-400 bg-green-400 opacity-75"
+            ></span>
+            <span class="size-2 rounded-full bg-green-400"></span>
+          </span>
+          <p class="font-medium text-muted-foreground">Get Template</p>
+        </a>
+      {{- end }}
+    </section>
+
+    <div id="content" class="animate flex flex-col gap-y-10 md:w-4/5 lg:w-5/6">
+      {{ $page.Content }}
+    </div>
+    {{ partial "quote.html" (dict "class" "mt-12") }}
+  </main>
+{{ end }}

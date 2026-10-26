@@ -1,0 +1,25 @@
+{{- /* Ported from `src/components/projects/Sponsorship.astro`.
+       Looks for `static/images/wechat-qrcode.webp` and `static/images/alipay-qrcode.webp`. */ -}}
+{{- /* Referencing .Inner keeps Hugo happy when the shortcode is self-closed (`{{< x />}}`). */ -}}
+{{- $_ := .Inner -}}
+{{- $methods := slice
+  (dict "name" "WeChat" "icon" "wechat-pay" "image" "/images/wechat-qrcode.webp")
+  (dict "name" "Alipay" "icon" "alipay" "image" "/images/alipay-qrcode.webp")
+-}}
+<div class="not-prose flex flex-col justify-center gap-4 sm:flex-row {{ .Get "class" }}">
+  {{- range $methods }}
+    <div class="sponsorship-card relative justify-center overflow-hidden rounded-xl border bg-white">
+      <div
+        class="sponsorship-card-icon absolute bottom-0 end-0 start-0 top-0 flex items-center justify-center transition-opacity"
+      >
+        {{ partial "icon.html" (dict "name" .icon "class" "size-20") }}
+      </div>
+      <img
+        class="sponsorship-card-img mx-auto my-0 max-w-60 transition-opacity"
+        src="{{ .image | relURL }}"
+        alt="{{ .name }}"
+        loading="lazy"
+      />
+    </div>
+  {{- end }}
+</div>

@@ -1,0 +1,39 @@
+{{- /* Shared shell of `src/layouts/ContentLayout.astro`.
+       Accepts pre-rendered HTML so it can stand in for Astro's slots.
+       Params: page, back, sidebar, header, body, bottom, bottomSidebar, otherIcons */ -}}
+{{- $page := .page -}}
+{{- $back := .back | default "/" -}}
+{{- $prose := site.Params.typography.class | default "prose text-base" -}}
+{{ partial "button.html" (dict "title" "Back" "href" $back "variant" "back") }}
+<main class="mt-6 items-start gap-x-10 md:flex">
+  <aside
+    class="animate top-20 min-w-48 basis-60 overflow-y-scroll max-md:hidden z-40 fixed md:sticky md:order-2 lg:shrink-0 max-md:border max-md:px-4 max-md:py-3 max-md:bg-muted max-md:rounded-xl"
+    style="height:calc(100vh - 7rem);"
+    id="sidebar"
+  >
+    {{ .sidebar | safeHTML }}
+  </aside>
+  <div
+    id="sidebar-shade"
+    class="fixed top-0 start-0 w-full h-full"
+    style="display:none;background-color:#00000091;z-index:31"
+  ></div>
+
+  <article data-pagefind-body class="min-w-0 grow">
+    <div id="content-header" class="animate">{{ .header | safeHTML }}</div>
+    <div id="content" class="max-w-none animate mt-8 md:min-w-[45ch] overflow-x-hidden {{ $prose }}">
+      {{ .body | safeHTML }}
+    </div>
+  </article>
+</main>
+
+<div class="bottom mt-6 items-start gap-x-10 md:flex">
+  <div class="flex-1 text-muted-foreground md:min-w-[50ch]">{{ .bottom | safeHTML }}</div>
+  <div class="min-w-48 basis-60">{{ .bottomSidebar | safeHTML }}</div>
+</div>
+
+{{ partial "back-to-top.html" (dict
+  "header" "content-header"
+  "content" "content"
+  "otherIcons" (.otherIcons | default true))
+}}

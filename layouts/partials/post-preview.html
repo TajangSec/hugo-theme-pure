@@ -1,0 +1,144 @@
+{{- /* Ported from `packages/pure/components/pages/PostPreview.astro`
+       Params: post (page), detailed (bool), class (string) */ -}}
+{{- $post := .post -}}
+{{- $detailed := .detailed | default false -}}
+{{- $hero := $post.Params.heroImage -}}
+{{- $dateFormat := site.Params.locale.dateFormat | default "Jan 2, 2006" -}}
+{{- $datetimeFormat := site.Params.locale.datetimeFormat | default "2006-01-02 15:04" -}}
+{{- $liClasses := slice "post-preview" -}}
+{{- with .class }}{{ $liClasses = $liClasses | append . }}{{ end -}}
+
+{{- $aClasses := slice
+  "block w-full relative group rounded-2xl border bg-background transition-colors ease-in-out px-5 py-2.5 hover:bg-muted hover:text-primary"
+-}}
+{{- if $detailed }}
+  {{- $aClasses = $aClasses | append "max-sm:px-4 sm:py-5" -}}
+  {{- if $hero }}{{ $aClasses = $aClasses | append "max-md:pt-24" }}{{ end -}}
+{{- end -}}
+
+{{- $style := "" -}}
+{{- if $detailed -}}
+  {{- with partial "highlight-color.html" (dict "page" $post) -}}
+    {{- $style = printf "--preview-highlight:color-mix(in srgb,%s 40%%,hsl(var(--foreground)/var(--un-text-opacity,1)));--preview-highlight-bg:hsl(from %s h s l/20%%)" . . -}}
+  {{- end -}}
+{{- end -}}
+
+<li class="{{ delimit $liClasses " " }}"{{ with $style }} style="{{ . | safeCSS }}"{{ end }}>
+  <a class="{{ delimit $aClasses " " }}" href="{{ $post.RelPermalink }}">
+    {{- if and $detailed $hero }}
+      <img
+        src="{{ partial "image-url.html" (dict "page" $post "src" $hero) }}"
+        alt="{{ $post.Params.heroImageAlt | default $post.Title }}"
+        class="cover-image absolute end-0 top-0 z-0 h-2/3 w-full rounded-2xl object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-70 md:h-full md:w-3/5"
+        loading="eager"
+      />
+    {{- end }}
+    <div
+      class="relative flex flex-col gap-1 {{ if not $detailed }}sm:flex-row sm:items-center{{ end }}"
+      style="z-index:1"
+    >
+      {{- with $post.Date }}
+        {{- /* Matches FormattedDate.astro: muted, monospaced, fixed width. */}}
+        <span class="text-muted-foreground font-mono min-w-[95px] text-xs">
+          <time
+            class="date-tip"
+            datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}"
+            data-tip="{{ .Format $datetimeFormat }}"
+            >{{ .Format $dateFormat }}</time
+          >
+        </span>
+      {{- end }}
+
+      <div class="flex justify-between flex-grow">
+        <div class="{{ if $detailed }}font-medium{{ end }}">
+          {{- if $post.Params.pin }}<span class="text-primary me-1">[Pin]</span>{{ end -}}
+          {{- if $post.Draft }}<span class="text-red-500 me-1">(Draft)</span>{{ end -}}
+          {{ $post.Title }}
+        </div>
+        <div class="flex items-center gap-2">
+          {{- if $post.Params.password }}
+            {{- /* Lock badge for password-protected posts (blog.en.icu's design). */}}
+            <span
+              class="inline-flex size-7 items-center justify-center rounded-full bg-primary/10 text-primary shadow-sm shadow-primary/10 transition-colors group-hover:bg-primary/15 group-hover:text-primary/90"
+            >
+              <svg
+                class="h-3.5 w-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M7 10V8a5 5 0 0 1 10 0v2"></path>
+                <rect x="5" y="10" width="14" height="11" rx="2"></rect>
+                <path d="M12 15v3"></path>
+              </svg>
+              <span class="sr-only">{{ site.Params.encrypt.badge | default "加密文章" }}</span>
+            </span>
+          {{- end }}
+          <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="preview-redirect my-1 stroke-muted-foreground group-hover:stroke-primary"
+        >
+          <line
+            x1="5"
+            y1="12"
+            x2="19"
+            y2="12"
+            class="translate-x-4 scale-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1 group-hover:scale-x-100"
+          />
+            <polyline
+              points="12 5 19 12 12 19"
+              class="translate-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1"
+            />
+          </svg>
+        </div>
+      </div>
+
+      {{- if $detailed }}
+        {{- with $post.Description }}
+          <p
+            class="line-clamp-2 text-sm text-muted-foreground sm:line-clamp-3 {{ if $hero }}sm:me-24{{ end }}"
+          >
+            {{ . }}
+          </p>
+        {{- end }}
+        <div class="py-2 flex items-center gap-2 text-sm italic leading-4 text-muted-foreground">
+          <span class="flex items-center gap-1">
+            {{ partial "icon.html" (dict "name" "time" "class" "size-4") }}
+            {{ partial "reading-time.html" $post.Plain }}
+          </span>
+          {{- with $post.Params.language }}
+            <span class="flex items-center gap-1">
+              {{ partial "icon.html" (dict "name" "earth" "class" "size-4") }}
+              {{ . }}
+            </span>
+          {{- end }}
+        </div>
+        {{- with $post.GetTerms "tags" }}
+          {{- if gt (len .) 0 }}
+            {{- /* The <object> wrapper is load-bearing: it inserts a formatting
+                   marker so the nested tag links do not auto-close the card's
+                   outer <a>. */}}
+            <object title="Tags" aria-label="Tags" aria-labelledby="Tags">
+              <ul class="tag-list mt-1 flex gap-2">
+                {{- range . }}
+                  <li>{{ partial "button.html" (dict "title" .Data.Term "href" .RelPermalink "variant" "pill") }}</li>
+                {{- end }}
+              </ul>
+            </object>
+          {{- end }}
+        {{- end }}
+      {{- end }}
+    </div>
+  </a>
+</li>

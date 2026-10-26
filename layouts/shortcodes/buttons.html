@@ -1,0 +1,29 @@
+{{- /* Tool section — ported from `src/components/about/ToolSection.astro`
+       Usage: {{< buttons title="Design" items="Photoshop:Picture Editing,Illustrator:Vector Drawing" >}}
+       Each item is `name:description`; `name` maps to `assets/icons/tools/<slug>.svg`. */ -}}
+{{- /* Referencing .Inner keeps Hugo happy when the shortcode is self-closed (`{{< x />}}`). */ -}}
+{{- $_ := .Inner -}}
+{{- $tools := split (.Get "items") "," -}}
+<div class="not-prose flex flex-col rounded-xl border py-3 px-3 gap-y-3 sm:gap-y-4 mb-5 {{ .Get "class" }}">
+  <div class="m-0 px-2 text-lg font-medium">{{ .Get "title" }}</div>
+  <div class="grid grid-cols-1 gap-x-2 gap-y-2 sm:grid-cols-2">
+    {{- range $tools }}
+      {{- $parts := split . ":" -}}
+      {{- $name := trim (index $parts 0) " " -}}
+      {{- $desc := "" -}}
+      {{- if gt (len $parts) 1 }}{{ $desc = trim (delimit (after 1 $parts) ":") " " }}{{ end -}}
+      {{- $slug := trim (lower (replaceRE `[^a-zA-Z0-9]+` "" $name)) " " -}}
+      <div
+        class="group relative text-sm leading-normal no-underline flex items-center gap-x-3 rounded-lg border border-transparent px-1.5 py-1 transition-colors hover:border-border hover:bg-muted"
+      >
+        <div class="size-10 shrink-0 rounded-lg bg-card p-2 [&_svg]:h-full [&_svg]:w-full">
+          {{ partial "tool-icon.html" (dict "name" $name "slug" $slug) }}
+        </div>
+        <div class="z-20 flex flex-col">
+          <div class="font-medium text-foreground">{{ $name }}</div>
+          <div class="font-normal text-muted-foreground">{{ $desc }}</div>
+        </div>
+      </div>
+    {{- end }}
+  </div>
+</div>

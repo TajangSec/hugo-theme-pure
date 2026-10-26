@@ -1,0 +1,13 @@
+{{- /* Ported from `src/components/home/SkillLayout.astro`
+       Usage: {{< skills title="Web" items="Vue.js, Nuxt.js, Node.js" >}} */ -}}
+{{- /* Referencing .Inner keeps Hugo happy when the shortcode is self-closed (`{{< x />}}`). */ -}}
+{{- $_ := .Inner -}}
+{{- $items := split (.Get "items") "," -}}
+<div class="flex flex-col gap-y-2 md:flex-row md:gap-x-5 md:gap-y-0">
+  <h3 class="w-1/5 font-medium">{{ .Get "title" }}</h3>
+  <div class="flex flex-row flex-wrap gap-x-4 gap-y-2 md:w-4/5">
+    {{- range $items }}
+      {{ partial "button.html" (dict "title" (trim . " ") "variant" "pill") }}
+    {{- end }}
+  </div>
+</div>

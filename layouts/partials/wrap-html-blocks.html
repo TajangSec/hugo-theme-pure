@@ -1,0 +1,68 @@
+{{- /*
+  Part of `md-inner.html`.
+
+  Paired shortcodes render their body with `markdownify`, and any HTML produced
+  by a nested shortcode therefore goes through the Markdown parser. Goldmark
+  then mis-reads it: a line starting with `>` becomes a blockquote, an opening
+  `<a` split over several lines is escaped as text.
+
+  The fix is to make each run of raw HTML look like a *raw HTML block*, which
+  Goldmark copies verbatim: it must start at column 0 with a block-level tag and
+  contain no blank line. `display: contents` on the wrapper keeps it out of the
+  layout, so wrapping an inline component does not turn it into a block.
+
+  A run is a maximal sequence of lines that look like HTML, allowing blank lines
+  in between (a blank line between two elements would otherwise end the block).
+
+  Params: segment (string)
+*/ -}}
+{{- $out := slice -}}
+{{- $md := slice -}}
+{{- $html := slice -}}
+{{- $pending := slice -}}
+{{- $depth := 0 -}}
+
+{{- range (split (.segment | default "") "\n") -}}
+  {{- $t := trim . " \t\r" -}}
+  {{- $tagStarts := len (findRE `<[a-zA-Z!/?]` $t) -}}
+  {{- $tagEnds := len (findRE `>` $t) -}}
+  {{- $isHtml := or (gt $depth 0) (and (hasPrefix $t "<") (gt $tagStarts 0)) -}}
+
+  {{- if eq $t "" -}}
+    {{- /* Hold blank lines: they only belong to Markdown if Markdown follows. */ -}}
+    {{- $pending = $pending | append . -}}
+  {{- else if $isHtml -}}
+    {{- if eq (len $html) 0 -}}
+      {{- with $md -}}
+        {{- $out = $out | append (delimit . "\n") -}}
+        {{- $md = slice -}}
+      {{- end -}}
+      {{- $out = $out | append "" -}}
+    {{- end -}}
+    {{- $pending = slice -}}
+    {{- $html = $html | append . -}}
+  {{- else -}}
+    {{- if gt (len $html) 0 -}}
+      {{- $out = $out | append (printf "<div class=\"contents\">\n%s\n</div>" (delimit $html "\n")) -}}
+      {{- $out = $out | append "" -}}
+      {{- $html = slice -}}
+    {{- end -}}
+    {{- range $pending }}{{ $md = $md | append . }}{{ end -}}
+    {{- $pending = slice -}}
+    {{- $md = $md | append . -}}
+  {{- end -}}
+
+  {{- $depth = add $depth (sub $tagStarts $tagEnds) -}}
+  {{- if lt $depth 0 }}{{ $depth = 0 }}{{ end -}}
+{{- end -}}
+
+{{- if gt (len $html) 0 -}}
+  {{- $out = $out | append (printf "<div class=\"contents\">\n%s\n</div>" (delimit $html "\n")) -}}
+  {{- $out = $out | append "" -}}
+{{- end -}}
+{{- range $pending }}{{ $md = $md | append . }}{{ end -}}
+{{- with $md -}}
+  {{- $out = $out | append (delimit . "\n") -}}
+{{- end -}}
+
+{{- delimit $out "\n" | safeHTML -}}

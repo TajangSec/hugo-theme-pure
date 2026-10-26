@@ -1,0 +1,11 @@
+{{- /* Ported from `packages/pure/components/user/Button.astro`
+       Usage: {{< button title="More" href="/about" variant="ahead" >}} */ -}}
+{{ partial "button.html" (dict
+  "title" (.Get "title")
+  "href" (.Get "href")
+  "variant" (.Get "variant" | default "button")
+  "class" (.Get "class")
+  "target" (.Get "target")
+  "html" (partial "md-inner.html" (dict "inner" .Inner))
+  )
+}}

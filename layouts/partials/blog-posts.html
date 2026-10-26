@@ -1,0 +1,7 @@
+{{- /* All blog posts, sorted like astro-theme-pure's `sortMDByDate`:
+       pinned first, then by date descending. Returns a page slice. */ -}}
+{{- $posts := where site.RegularPages "Section" "blog" -}}
+{{- $pinned := where $posts "Params.pin" true -}}
+{{- $rest := complement $pinned $posts -}}
+{{- $sorted := $pinned.ByDate.Reverse | append ($rest.ByDate.Reverse) -}}
+{{- return $sorted -}}

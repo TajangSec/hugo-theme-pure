@@ -1,0 +1,74 @@
+{{- /* Ported from `packages/pure/components/user/Button.astro`
+       Params: title, href, variant ("button" | "pill" | "back" | "ahead"), class, target, id,
+               ariaLabel, dataAttrs (raw attribute string) */ -}}
+{{- $variant := .variant | default "button" -}}
+{{- $href := .href -}}
+{{- if and $href (not (hasPrefix $href "http")) (not (hasPrefix $href "#")) (not (hasPrefix $href "mailto:")) -}}
+  {{- $href = $href | relURL -}}
+{{- end -}}
+{{- $classes := slice
+  "group inline-flex items-center gap-x-1 rounded-lg bg-muted border px-2 py-1 text-sm text-muted-foreground transition-all hover:bg-card no-underline"
+-}}
+{{- if not $href }}{{ $classes = $classes | append "cursor-default" }}{{ end -}}
+{{- if eq $variant "pill" }}{{ $classes = $classes | append "rounded-xl" }}{{ end -}}
+{{- with .class }}{{ $classes = $classes | append . }}{{ end -}}
+{{- if $href }}<a{{ else }}<span{{ end }}
+  class="{{ delimit $classes " " }}"
+  {{ with $href }}href="{{ . }}"{{ end }}
+  {{ with .target }}target="{{ . }}"{{ end }}
+  {{ with .id }}id="{{ . }}"{{ end }}
+  {{ with .ariaLabel }}aria-label="{{ . }}"{{ end }}
+  {{ with .dataAttrs }}{{ . | safeHTMLAttr }}{{ end }}>
+  {{- if eq $variant "back" }}
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="stroke-muted-foreground group-hover:stroke-primary"
+    >
+      <line
+        x1="19"
+        y1="12"
+        x2="5"
+        y2="12"
+        class="translate-x-3 scale-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-0 group-hover:scale-x-100"
+      />
+      <polyline
+        points="12 19 5 12 12 5"
+        class="translate-x-1 transition-all duration-300 ease-in-out group-hover:translate-x-0"
+      />
+    </svg>
+  {{- end }}
+  {{- with .title }}<p class="my-0">{{ . }}</p>{{ end -}}
+  {{- with .html }}{{ . | safeHTML }}{{ end -}}
+  {{- if eq $variant "ahead" }}
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="stroke-muted-foreground group-hover:stroke-primary"
+    >
+      <line
+        x1="5"
+        y1="12"
+        x2="19"
+        y2="12"
+        class="translate-x-4 scale-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1 group-hover:scale-x-100"
+      />
+      <polyline
+        points="12 5 19 12 12 19"
+        class="translate-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1"
+      />
+    </svg>
+  {{- end }}
+  {{- if $href }}</a>{{ else }}</span>{{ end }}

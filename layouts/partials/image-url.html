@@ -1,0 +1,15 @@
+{{- /* Resolve a front-matter image path to a URL.
+       Params: page (page), src (string)
+       Page-bundle resources win, then `static/`, then remote URLs. */ -}}
+{{- $page := .page -}}
+{{- $src := .src -}}
+{{- $url := $src -}}
+{{- if not (or (hasPrefix $src "http://") (hasPrefix $src "https://") (hasPrefix $src "data:")) -}}
+  {{- $res := $page.Resources.GetMatch (path.Base $src) -}}
+  {{- if $res -}}
+    {{- $url = $res.RelPermalink -}}
+  {{- else -}}
+    {{- $url = $src | relURL -}}
+  {{- end -}}
+{{- end -}}
+{{- $url -}}

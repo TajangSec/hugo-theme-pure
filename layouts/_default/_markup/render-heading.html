@@ -1,0 +1,10 @@
+{{- /*
+  Heading render hook — appends the `#` permalink anchor, matching the Astro
+  theme's `rehypeAutolinkHeadings` setup (`behavior: 'append'`,
+  `properties: { className: ['anchor'] }`, `content: '#'`).
+
+  The anchor is hidden by default and revealed on hover; see the
+  `h1>a … h6>a` rules in `uno.config.ts`.
+*/ -}}
+{{- $anchor := replace .Anchor `"` "" -}}
+<h{{ .Level }} {{ printf `id="%s"` $anchor | safeHTMLAttr }}>{{ .Text | safeHTML }}<a class="anchor" {{ printf `href="#%s"` $anchor | safeHTMLAttr }}>#</a></h{{ .Level }}>

@@ -1,0 +1,47 @@
+{{- /* Ported from `src/pages/archives/index.astro` */ -}}
+{{ define "main" }}
+  {{- $page := . -}}
+  {{- $posts := partialCached "blog-posts.html" $page -}}
+  {{- $years := slice -}}
+  {{- range $posts -}}
+    {{- $y := .Date.Format "2006" -}}
+    {{- if not (in $years $y) }}{{ $years = $years | append $y }}{{ end -}}
+  {{- end -}}
+  {{- $years = sort $years "value" "desc" -}}
+
+  {{ partial "button.html" (dict "title" "Back" "href" ("blog" | relLangURL) "variant" "back") }}
+
+  <main class="mt-6 lg:mt-10">
+    <div id="content-header" class="animate">
+      <h1 class="mb-6 text-3xl font-medium">Archives</h1>
+    </div>
+
+    {{- if eq (len $posts) 0 }}<p>No posts yet.</p>{{ end }}
+
+    <section id="content" class="animate" aria-label="Blog post list">
+      {{- range $years }}
+        {{- $year := . -}}
+        {{- $inYear := slice -}}
+        {{- range $posts -}}
+          {{- if eq (.Date.Format "2006") $year }}{{ $inYear = $inYear | append . }}{{ end -}}
+        {{- end }}
+        <div class="relative mt-20">
+          <h2
+            class="absolute -start-6 -top-16 z-0 text-9xl font-bold text-transparent opacity-12 dark:opacity-25"
+            style="-webkit-text-stroke-width:2px;-webkit-text-stroke-color:hsl(var(--foreground)/var(--un-text-opacity))"
+          >
+            <samp>{{ $year }}</samp>
+          </h2>
+          <p class="px-5 text-muted-foreground">
+            {{ len $inYear }} post{{ if gt (len $inYear) 1 }}s{{ end }}
+          </p>
+          <ul class="flex flex-col text-start">
+            {{- range $inYear }}
+              {{ partial "post-preview.html" (dict "post" . "class" "border-0 bg-transparent py-2") }}
+            {{- end }}
+          </ul>
+        </div>
+      {{- end }}
+    </section>
+  </main>
+{{ end }}

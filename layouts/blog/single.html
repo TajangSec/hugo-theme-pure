@@ -1,0 +1,36 @@
+{{- /* Ported from `src/layouts/BlogPost.astro` + `src/pages/blog/[...id].astro`
+       Also renders the password gate for encrypted posts — see
+       `scripts/encrypt-posts.mjs` and the README. */ -}}
+{{ define "main" }}
+  {{- $page := . -}}
+  {{- $encrypted := ne ($page.Params.password | default "") "" -}}
+
+  {{- $toc := "" -}}
+  {{- with $page.Fragments.Headings -}}
+    {{- $toc = partial "toc.html" (dict "page" $page) -}}
+  {{- end -}}
+
+  {{- $sidebar := $toc -}}
+  {{- $body := $page.Content -}}
+
+  {{- if $encrypted -}}
+    {{- /* The heading text of an encrypted post is as sensitive as its body, so
+         the TOC travels inside the ciphertext and is injected into the sidebar
+         only after a successful unlock. */ -}}
+    {{- $sidebar = "" -}}
+    {{- $body = partial "encrypted-body.html" (dict "page" $page "body" $page.Content "toc" $toc) -}}
+  {{- end -}}
+
+  {{- $bottom := partial "copyright.html" (dict "page" $page "class" "") -}}
+  {{- $bottom = printf "%s%s" $bottom (partial "article-bottom.html" (dict "page" $page "class" "mt-3 sm:mt-6")) -}}
+
+  {{ partial "content-shell.html" (dict
+    "page" $page
+    "back" ("blog" | relLangURL)
+    "sidebar" $sidebar
+    "header" (partial "hero.html" (dict "page" $page))
+    "body" $body
+    "bottom" $bottom
+    )
+  }}
+{{ end }}

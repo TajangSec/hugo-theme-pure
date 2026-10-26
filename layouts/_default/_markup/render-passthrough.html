@@ -1,0 +1,34 @@
+{{- /*
+  Renders math with KaTeX at build time (Hugo bundles it for `transform.ToMath`).
+
+  Maths is opt-in per page, like the source Jekyll blog: a post that does not set
+  `math: true` keeps `$…$` verbatim. This matters for posts full of shell/PHP
+  (`$_GET`, `$count`, `$IFS`…) — treating every `$…$` pair as a formula would
+  either fail the build or paint the text red.
+
+  `params.math.enabled` sets the site-wide default (page front matter wins).
+
+  `output: 'htmlAndMathml'` matches what rehype-katex produces in the Astro
+  theme; `throwOnError: false` means a malformed formula degrades to visible
+  text instead of aborting the build.
+*/ -}}
+{{- $siteDefault := true -}}
+{{- with site.Params.math }}{{ if isset . "enabled" }}{{ $siteDefault = .enabled }}{{ end }}{{ end -}}
+{{- $enabled := $siteDefault -}}
+{{- if isset .Page.Params "math" }}{{ $enabled = .Page.Params.math }}{{ end -}}
+
+{{- if not $enabled -}}
+  {{- /* Pass the delimiters back through untouched. */ -}}
+  {{- if eq .Type "block" -}}
+    {{- printf "$$%s$$" .Inner -}}
+  {{- else -}}
+    {{- printf "$%s$" .Inner -}}
+  {{- end -}}
+{{- else -}}
+  {{- .Page.Store.Set "hasMath" true -}}
+  {{- $opts := dict "output" (site.Params.math.output | default "htmlAndMathml") "throwOnError" false -}}
+  {{- if eq .Type "block" -}}
+    {{- $opts = merge $opts (dict "displayMode" true) -}}
+  {{- end -}}
+  {{- transform.ToMath .Inner $opts -}}
+{{- end -}}

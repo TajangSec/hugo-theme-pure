@@ -1,0 +1,62 @@
+{{- /* Ported from `src/pages/tags/index.astro` — all tags sized by post count. */ -}}
+{{ define "main" }}
+  {{- $terms := .Pages -}}
+  {{- $plural := .Data.Plural -}}
+  {{- $label := $plural | title -}}
+  {{ partial "button.html" (dict "title" "Back" "href" ("blog" | relLangURL) "variant" "back") }}
+  <main class="mt-6 lg:mt-10">
+    <div id="content-header" class="animate">
+      <h1 class="mb-6 text-3xl font-medium">{{ $label }}</h1>
+    </div>
+
+    <div id="content" class="animate">
+      {{- if gt (len $terms) 0 }}
+        {{- if eq $plural "categories" }}
+          {{- /* 分类是「栏目」，用等权重的两列列表而不是词云 —— 词云的大小差异
+                 会误导读者以为分类有主次，这里只关心有哪些栏目、各有多少篇。 */ -}}
+          <ul class="grid max-w-4xl gap-2 sm:grid-cols-2">
+            {{- range $terms }}
+              <li>
+                <a
+                  class="group flex items-center justify-between gap-3 rounded-lg border bg-muted/30 px-4 py-3 text-muted-foreground transition-all hover:bg-card hover:text-primary"
+                  href="{{ .RelPermalink }}"
+                >
+                  <span class="flex min-w-0 items-center gap-2">
+                    {{ partial "icon.html" (dict "name" "folder" "class" "size-5 shrink-0 opacity-70") }}
+                    <span class="truncate">{{ .Data.Term }}</span>
+                  </span>
+                  <span class="text-sm tabular-nums opacity-60">{{ len .Pages }}</span>
+                </a>
+              </li>
+            {{- end }}
+          </ul>
+        {{- else }}
+          <ul class="flex flex-wrap gap-4">
+            {{- range $terms }}
+              {{- $count := len .Pages }}
+              {{- $extra := "" -}}
+              {{- $size := "text-xs" -}}
+              {{- if gt $count 2 -}}
+                {{- $extra = "rounded-xl px-3 py-1 text-xl" -}}
+                {{- $size = "text-base" -}}
+              {{- else if gt $count 1 -}}
+                {{- $extra = "text-lg" -}}
+              {{- end -}}
+              <li>
+                {{ partial "button.html" (dict
+                  "href" .RelPermalink
+                  "variant" "pill"
+                  "class" (printf "items-start gap-x-1 %s" $extra)
+                  "html" (printf `%s<span class="%s">%d</span>` .Data.Term $size $count)
+                  )
+                }}
+              </li>
+            {{- end }}
+          </ul>
+        {{- end }}
+      {{- else }}
+        <p>No {{ singularize $plural }} yet.</p>
+      {{- end }}
+    </div>
+  </main>
+{{ end }}

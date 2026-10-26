@@ -1,0 +1,21 @@
+{{- /* Ported from `src/components/projects/Sponsors.astro`
+       Reads `sponsors` from `data/sponsors.json`. */ -}}
+{{- /* Referencing .Inner keeps Hugo happy when the shortcode is self-closed (`{{< x />}}`). */ -}}
+{{- $_ := .Inner -}}
+{{- $progressMax := float (.Get "max" | default 50) -}}
+{{- $sponsors := hugo.Data.sponsors.sponsors -}}
+<div class="not-prose grid gap-3 sm:grid-cols-2 sm:gap-3.5 lg:grid-cols-3 {{ .Get "class" }}">
+  {{- range $sponsors }}
+    <div class="sponsor-card relative h-full overflow-hidden rounded-xl border px-4 py-3">
+      <div class="font-medium mb-2 line-clamp-1">{{ .name }}</div>
+      <div class="text-xs text-muted-foreground">
+        {{ .date }}{{ with .platform }} by {{ . }}{{ end }}
+      </div>
+      <span class="absolute bottom-2 right-4 font-medium max-sm:text-lg">¥{{ .amount }}</span>
+      <div
+        class="progress absolute h-full top-0 left-0 -z-10 bg-muted"
+        style="width:{{ math.Min (mul (div (float .amount) $progressMax) 100) 100 }}%"
+      ></div>
+    </div>
+  {{- end }}
+</div>

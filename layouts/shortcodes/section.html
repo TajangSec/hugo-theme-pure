@@ -1,0 +1,10 @@
+{{- /* Ported from `src/components/home/Section.astro`
+       Usage: {{< section title="About" >}} …markdown… {{< /section >}} */ -}}
+<section class="flex flex-col gap-y-5 md:flex-row md:gap-y-0 {{ .Get "class" }}">
+  <div class="text-xl font-medium md:min-w-36">
+    <h2>{{ .Get "title" }}</h2>
+  </div>
+  <div class="flex flex-1 flex-col gap-y-3">
+    {{ partial "md-inner.html" (dict "inner" .Inner) }}
+  </div>
+</section>

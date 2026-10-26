@@ -1,0 +1,674 @@
+/* Component styles ported from the scoped `<style>` blocks of astro-theme-pure.
+ * Class/ID names are kept identical so the original JS keeps working. */
+
+/* ==========================================================================
+   [Contents wrapper] — `display: contents` keeps the wrapper out of layout.
+   Used by `partials/wrap-html-blocks.html`.
+   ========================================================================== */
+.contents {
+  display: contents;
+}
+
+/* ==========================================================================
+   [Project cards]
+   ========================================================================== */
+.project-card-fg {
+  --un-gradient-shape: to bottom in oklch;
+  --un-gradient: var(--un-gradient-shape), var(--un-gradient-stops);
+  --un-gradient-from-position: 0%;
+  --un-gradient-from: transparent var(--un-gradient-from-position);
+  --un-gradient-to-position: 80%;
+  --un-gradient-to: hsl(var(--card) / var(--un-to-opacity, 1)) var(--un-gradient-to-position);
+  --un-gradient-stops: var(--un-gradient-from), var(--un-gradient-to);
+  background-image: linear-gradient(var(--un-gradient));
+}
+.project-card:hover .project-card-fg {
+  --un-gradient-to-position: 100%;
+}
+
+/* ==========================================================================
+   [Sponsorship]
+   ========================================================================== */
+.sponsorship-card .sponsorship-card-img {
+  opacity: 0.3;
+  --un-blur: blur(4px);
+  filter: var(--un-blur);
+}
+.sponsorship-card:hover .sponsorship-card-icon {
+  opacity: 0;
+}
+.sponsorship-card:hover .sponsorship-card-img {
+  opacity: 1;
+  --un-blur: blur(0);
+}
+
+/* ==========================================================================
+   [Icon] — `:where()` keeps specificity at element level so utility classes
+   such as `size-5` still win, mirroring Astro's `scopedStyleStrategy: 'where'`.
+   ========================================================================== */
+svg:where(.pure-icon) {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+/* ==========================================================================
+   [BaseLayout] safe-area padding + highlight gradient
+   ========================================================================== */
+#main-container {
+  padding-top: env(safe-area-inset-top);
+  padding-left: calc(1rem + env(safe-area-inset-left));
+  padding-right: calc(1rem + env(safe-area-inset-right));
+}
+@media (min-width: 640px) {
+  #main-container {
+    padding-left: calc(1.75rem + env(safe-area-inset-left));
+    padding-right: calc(1.75rem + env(safe-area-inset-right));
+  }
+}
+@media (min-width: 1024px) {
+  #main-container {
+    padding-left: calc(2.5rem + env(safe-area-inset-left));
+    padding-right: calc(2.5rem + env(safe-area-inset-right));
+  }
+}
+#highlight-gradient {
+  background-image: linear-gradient(var(--highlight-color), transparent);
+}
+.highlight {
+  --highlight-fg: color-mix(
+    in srgb,
+    var(--highlight-color) 40%,
+    hsl(var(--foreground) / var(--un-text-opacity, 1))
+  );
+  color: var(--highlight-fg, hsl(var(--primary) / var(--un-text-opacity))) !important;
+}
+.highlight-bg {
+  background-color: var(--highlight-color, hsl(var(--primary) / var(--un-text-opacity))) !important;
+}
+
+/* ==========================================================================
+   [Header]
+   ========================================================================== */
+header-component {
+  transition:
+    padding 0.3s,
+    transform 0.3s,
+    margin-inline 0.3s,
+    border 0.15s,
+    background-color 0.15s;
+}
+header-component.not-top {
+  --un-border-opacity: 1;
+  border-color: hsl(var(--border) / var(--un-border-opacity));
+  --un-bg-opacity: 1;
+  background-color: hsl(var(--background) / var(--un-bg-opacity));
+  padding-left: 0.375rem;
+  padding-right: 0.375rem;
+  box-shadow:
+    rgb(255, 255, 255) 0px 0px 0px 0px,
+    rgba(24, 24, 27, 0.08) 0px 0px 0px 1px,
+    rgba(39, 39, 42, 0.08) 0px 10px 15px -3px,
+    rgba(39, 39, 42, 0.08) 0px 4px 6px -4px;
+}
+header-component[data-show='false']:not(.expanded) {
+  transform: translateY(-5rem);
+}
+@media (min-width: 800px) {
+  header-component.not-top {
+    margin-inline: 8%;
+  }
+}
+.dark header-component.not-top {
+  background-color: hsl(var(--muted) / var(--un-bg-opacity));
+}
+
+/* header menu */
+@media (max-width: 640px) {
+  #headerExpandContent {
+    grid-template-rows: 0fr;
+    transition:
+      opacity 0.3s,
+      padding 0.3s,
+      border-color 0.15s,
+      grid-template-rows 0.3s;
+  }
+  .expanded #headerExpandContent {
+    grid-template-rows: 1fr;
+  }
+  .expanded.not-top #headerExpandContent {
+    box-shadow:
+      rgb(255, 255, 255) 0px 0px 0px 0px,
+      rgba(24, 24, 27, 0.08) 0px 0px 0px 1px,
+      rgba(39, 39, 42, 0.08) 0px 10px 15px -3px,
+      rgba(39, 39, 42, 0.08) 0px 4px 6px -4px;
+  }
+
+  /* header component after */
+  header-component #headerExpandContent::after {
+    box-sizing: content-box;
+    content: '';
+    position: absolute;
+    inset-inline: calc(-1rem - 1px);
+    bottom: 0;
+    top: -5rem;
+    z-index: -1;
+    transition: 0.3s;
+    visibility: hidden;
+    opacity: 0;
+    border-bottom: 1px solid transparent;
+  }
+  header-component:not(.not-top) #headerExpandContent::after {
+    visibility: visible;
+    bottom: -1rem;
+    opacity: 1;
+    background-color: hsl(var(--muted) / var(--un-bg-opacity, 1));
+    border-bottom-color: hsl(var(--border) / var(--un-border-opacity, 1));
+  }
+}
+
+/* dark light mode toggle */
+#toggleDarkMode[data-theme='dark'] .system {
+  display: none;
+}
+#toggleDarkMode[data-theme='dark'] .dark {
+  display: block;
+}
+#toggleDarkMode[data-theme='light'] .system {
+  display: none;
+}
+#toggleDarkMode[data-theme='light'] .light {
+  display: block;
+}
+
+/* ==========================================================================
+   [Footer]
+   ========================================================================== */
+footer a {
+  color: hsl(var(--foreground) / var(--un-text-opacity, 1));
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   [ContentLayout] sidebar
+   ========================================================================== */
+@media (min-width: 769px) {
+  #sidebar-shade {
+    display: none !important;
+  }
+}
+@media (max-width: 769px) {
+  aside.show {
+    display: block !important;
+    opacity: 1;
+  }
+  @keyframes fade-in-side {
+    0% {
+      transform: translateX(50%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  aside#sidebar {
+    animation: 300ms fade-in-side !important;
+    animation-fill-mode: forwards;
+    right: 0;
+    top: 0 !important;
+    height: 100vh !important;
+    min-width: 40vw !important;
+    max-width: 75vw !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+  #sidebar-shade {
+    animation: 300ms fade-in;
+  }
+}
+@media (max-width: 640px) {
+  aside#sidebar {
+    min-width: 55vw !important;
+  }
+}
+
+/* ==========================================================================
+   [BackToTop]
+   ========================================================================== */
+#action-buttons {
+  transform: translateY(4rem);
+}
+#action-buttons.show {
+  transform: translateY(0);
+}
+#action-buttons.show #to-top-btn {
+  opacity: 1;
+}
+#action-buttons #to-top-btn .top-text,
+#action-buttons #to-top-btn .top-icon {
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+#action-buttons #to-top-btn .top-text {
+  opacity: 1;
+}
+#action-buttons #to-top-btn .top-icon {
+  opacity: 0;
+}
+#action-buttons.ended #to-top-btn .top-text,
+#action-buttons #to-top-btn:hover .top-text {
+  opacity: 0;
+}
+#action-buttons.ended #to-top-btn .top-icon,
+#action-buttons #to-top-btn:hover .top-icon {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   [PostPreview]
+   ========================================================================== */
+.post-preview {
+  --preview-highlight-final: var(
+    --preview-highlight,
+    hsl(var(--primary) / var(--un-text-opacity, 1))
+  );
+}
+.post-preview:hover > a,
+.post-preview:hover .tag-list a {
+  background-color: var(--preview-highlight-bg, hsl(var(--muted) / var(--un-bg-opacity, 1))) !important;
+}
+.post-preview:hover > a,
+.post-preview:hover .tag-list a:hover {
+  color: var(--preview-highlight-final) !important;
+}
+.post-preview:hover > a .preview-redirect {
+  stroke: var(--preview-highlight-final) !important;
+}
+.cover-image {
+  -webkit-mask-image: -webkit-linear-gradient(left, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+  -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+  mask-image: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+}
+@media (max-width: 768px) {
+  .cover-image {
+    -webkit-mask-image: -webkit-linear-gradient(bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+    -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+    mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+  }
+}
+
+/* ==========================================================================
+   [Hero]
+   ========================================================================== */
+#blurImage {
+  --un-blur: blur(24px);
+  filter: var(--un-blur);
+}
+
+/* ==========================================================================
+   [TOC]
+   ========================================================================== */
+toc-heading .toc-item {
+  display: flow-root;
+}
+.toc-bar {
+  position: absolute;
+  top: 5%;
+  width: 2px;
+  border-radius: 0.25rem;
+  transition: background-color 0.3s;
+}
+.toc-bar.highlight-bg {
+  background-color: hsl(var(--primary) / var(--un-bg-opacity, 1)) !important;
+}
+.toc-bar.is-read {
+  background-color: hsl(var(--border) / var(--un-bg-opacity, 1)) !important;
+}
+.toc-link {
+  line-clamp: 2;
+  color: hsl(var(--foreground) / 0.75);
+  transition: all 0.15s ease;
+}
+.toc-link:hover {
+  color: hsl(var(--foreground) / var(--un-text-opacity, 1)) !important;
+}
+.toc-link.highlight {
+  font-weight: 500;
+  color: hsl(var(--primary) / var(--un-text-opacity, 1)) !important;
+}
+.toc-link.highlight-bg-translucent {
+  background-color: hsl(var(--muted) / var(--un-bg-opacity, 1));
+}
+.toc-link.rounded-t-2xl {
+  border-start-start-radius: 1rem;
+  border-start-end-radius: 1rem;
+}
+.toc-link.rounded-b-2xl {
+  border-end-start-radius: 1rem;
+  border-end-end-radius: 1rem;
+}
+
+/* ==========================================================================
+   [Mermaid] — the source flashes until the library renders it, so fade in once
+   `data-processed` lands (Mermaid sets it itself; the loader sets it on error
+   so the raw source is still readable).
+   ========================================================================== */
+.mermaid-block {
+  margin: 0.75rem 0;
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+}
+pre.mermaid {
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  border-radius: 0;
+  font-family: inherit;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+pre.mermaid[data-processed] {
+  opacity: 1;
+}
+pre.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ==========================================================================
+   [Date tooltip] — article dates show their exact time on hover.
+   A CSS-only bubble rather than the `title` attribute: native tooltips are
+   drawn by the browser UI (slow, OS dependent, and invisible in screenshots).
+   ========================================================================== */
+.date-tip {
+  position: relative;
+  cursor: default;
+}
+.date-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.4rem);
+  transform: translate(-50%, 3px);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border) / 1);
+  background-color: hsl(var(--muted) / 1);
+  color: hsl(var(--foreground) / 1);
+  box-shadow: 0 6px 16px hsl(var(--foreground) / 0.12);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+  z-index: 60;
+}
+.date-tip:hover::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ==========================================================================
+   [Medium Zoom] — ported from `advanced/MediumZoom.astro`.
+   Without these rules the zoomed image stays in the article flow: the overlay
+   has no fixed positioning, so there is nothing to click to zoom back out.
+   ========================================================================== */
+.medium-zoom-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+  will-change: opacity;
+}
+.medium-zoom--opened .medium-zoom-overlay {
+  cursor: zoom-out;
+  opacity: 1;
+  z-index: 999;
+}
+.medium-zoom-image {
+  cursor: zoom-in;
+  transition: transform 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+}
+.medium-zoom-image--hidden {
+  visibility: hidden;
+}
+.medium-zoom-image--opened {
+  position: relative;
+  cursor: zoom-out;
+  will-change: transform;
+  z-index: 999;
+}
+
+/* ==========================================================================
+   [Encrypted posts]
+   ========================================================================== */
+/* UnoCSS emits `.hidden` before `.flex`, so `classList.add('hidden')` leaves the
+   gate visible — its own `flex` wins. Hide via the attribute at ID specificity. */
+#password-form[hidden] {
+  display: none;
+}
+
+.password-protected-content {
+  animation: pure-fade-in 0.3s ease-in;
+}
+@keyframes pure-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   [Copyright]
+   ========================================================================== */
+#qrcode-container.expanded {
+  max-height: 11rem;
+  transform: translateY(6px);
+  opacity: 1;
+}
+#qrcode-container canvas {
+  width: 100%;
+}
+
+/* ==========================================================================
+   [Collapse]
+   ========================================================================== */
+.expand-content {
+  grid-template-rows: 0fr;
+}
+.expanded .expand-content {
+  grid-template-rows: 1fr;
+}
+
+/* ==========================================================================
+   [Aside / callout]
+   ========================================================================== */
+.aside > .aside-container {
+  --un-bg-opacity: 0.07;
+  border-inline-start-width: 8px;
+  background-color: hsl(var(--primary) / var(--un-bg-opacity));
+}
+.aside > .aside-container.aside-tip {
+  --primary: 234 60% 60%;
+}
+.aside > .aside-container.aside-caution {
+  --primary: 41 90% 50%;
+}
+.aside > .aside-container.aside-danger {
+  --primary: 339 90% 60%;
+}
+.aside .aside-content > :first-child {
+  margin-top: 0;
+}
+.aside .aside-content > :last-child {
+  margin-bottom: 0;
+}
+
+/* ==========================================================================
+   [Spoiler]
+   ========================================================================== */
+.spoiler {
+  background-color: hsl(var(--muted) / var(--un-bg-opacity, 1));
+  border-radius: 0.25rem;
+  color: transparent;
+  padding-inline: 0.25rem;
+  transition: color 0.15s ease;
+}
+.spoiler:hover {
+  color: inherit;
+}
+.spoiler:not(:hover) * {
+  color: inherit !important;
+  background-color: transparent !important;
+}
+
+/* ==========================================================================
+   [Steps]  (ported from Starlight via astro-theme-pure)
+   ========================================================================== */
+.sl-steps {
+  --bullet-size: calc(1.75rem);
+  --bullet-margin: 0.375rem;
+
+  list-style: none !important;
+  counter-reset: steps-counter var(--sl-steps-start, 0);
+  padding-inline-start: 0 !important;
+}
+.sl-steps > li {
+  counter-increment: steps-counter;
+  position: relative;
+  padding-inline-start: calc(var(--bullet-size) + 1rem);
+  padding-bottom: 1px;
+  min-height: calc(var(--bullet-size) + var(--bullet-margin));
+}
+.sl-steps > li + li {
+  margin-top: 0;
+}
+.sl-steps > li::before {
+  content: counter(steps-counter);
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  width: var(--bullet-size);
+  height: var(--bullet-size);
+  line-height: var(--bullet-size);
+
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: center;
+  color: hsl(var(--foreground) / var(--un-text-opacity, 1));
+  background-color: hsl(var(--card) / var(--un-bg-opacity, 1));
+  border-radius: 99rem;
+  box-shadow: inset 0 0 0 1px hsl(var(--border) / var(--un-border-opacity, 1));
+}
+.sl-steps > li::after {
+  --guide-width: 1px;
+  content: '';
+  position: absolute;
+  top: calc(var(--bullet-size) + var(--bullet-margin));
+  bottom: var(--bullet-margin);
+  inset-inline-start: calc((var(--bullet-size) - var(--guide-width)) / 2);
+  width: var(--guide-width);
+  background-color: hsl(var(--border) / var(--un-border-opacity, 1));
+}
+.sl-steps > li > :first-child {
+  --lh: calc(1.75em);
+  --shift-y: calc(0.5 * (var(--bullet-size) - var(--lh)));
+  margin-top: 0;
+  transform: translateY(var(--shift-y));
+  margin-bottom: var(--shift-y);
+  color: hsl(var(--foreground) / var(--un-text-opacity, 1));
+}
+.sl-steps > li > :first-child:where(h1, h2, h3, h4, h5, h6) {
+  --lh: calc(1.2em);
+}
+
+/* ==========================================================================
+   [Tabs]
+   ========================================================================== */
+starlight-tabs {
+  display: block;
+}
+.tablist-wrapper {
+  overflow-x: auto;
+}
+[role='tablist'] {
+  display: flex;
+  list-style: none;
+  border-bottom: 2px solid hsl(var(--border) / var(--un-border-opacity, 1));
+  padding: 0;
+}
+.tab {
+  margin-bottom: -2px;
+}
+.tab > [role='tab'] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.2rem 1.25rem;
+  text-decoration: none;
+  border-bottom: 2px solid hsl(var(--border) / var(--un-border-opacity, 1));
+  color: hsl(var(--foreground) / var(--un-text-opacity, 1));
+  outline-offset: -0.1875rem;
+  overflow-wrap: initial;
+  white-space: nowrap;
+}
+.tab [role='tab'][aria-selected='true'] {
+  color: hsl(var(--primary) / var(--un-text-opacity, 1));
+  border-color: hsl(var(--primary) / var(--un-text-opacity, 1));
+  font-weight: 600;
+}
+.tablist-wrapper ~ [role='tabpanel'] {
+  margin-top: 1rem;
+}
+
+/* ==========================================================================
+   [Search] Pagefind theme variables
+   ========================================================================== */
+#site-search {
+  --pagefind-ui-scale: 0.8;
+  --pagefind-ui-primary: hsl(var(--primary) / var(--un-bg-opacity, 1));
+  --pagefind-ui-text: hsl(var(--foreground) / var(--un-text-opacity, 1));
+  --pagefind-ui-background: hsl(var(--muted) / var(--un-bg-opacity, 1));
+  --pagefind-ui-border: hsl(var(--border) / var(--un-border-opacity, 1));
+  --pagefind-ui-tag: hsl(var(--muted-foreground) / var(--un-text-opacity, 1));
+  --pagefind-ui-border-width: 2px;
+  --pagefind-ui-border-radius: calc(var(--radius) + 2px);
+  --pagefind-ui-image-border-radius: calc(var(--radius) + 2px);
+  --pagefind-ui-image-box-ratio: 3 / 2;
+  --pagefind-ui-font: var(--font-sans);
+}
+
+/* ==========================================================================
+   [Toast]
+   ========================================================================== */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  z-index: 20;
+}

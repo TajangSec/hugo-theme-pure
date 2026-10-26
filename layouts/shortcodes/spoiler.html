@@ -1,0 +1,3 @@
+{{- /* Ported from `packages/pure/components/user/Spoiler.astro`
+       Usage: {{< spoiler >}}hidden text{{< /spoiler >}} */ -}}
+<span class="spoiler bg-muted rounded text-transparent hover:text-inherit px-1 transition-colors {{ .Get "class" }}">{{ partial "md-inner.html" (dict "inner" .Inner) }}</span>

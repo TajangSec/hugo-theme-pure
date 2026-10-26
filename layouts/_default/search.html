@@ -1,0 +1,30 @@
+{{- /* Ported from `src/pages/search/index.astro` + `PFSearch.astro`
+       Requires the `pagefind` CLI to run after the Hugo build:
+         pagefind --site public */ -}}
+{{ define "main" }}
+  {{- $page := . -}}
+  {{- $page.Store.Set "hasSearch" true -}}
+  {{ partial "button.html" (dict "title" "Back" "href" ("blog" | relLangURL) "variant" "back") }}
+  <main class="mt-6 lg:mt-10">
+    <div id="content-header" class="animate">
+      <h1 class="mb-6 text-3xl font-medium">Search</h1>
+    </div>
+
+    <div id="content" class="animate">
+      <p>Enter a search term or phrase to search the blog.</p>
+      <site-search>
+        <aside class="form my-4">
+          {{- if hugo.IsProduction }}
+            <div id="site-search"></div>
+          {{- else }}
+            <div
+              class="w-full rounded-xl border-2 bg-transparent px-4 py-2 pe-3 outline-none focus:border-foreground"
+            >
+              You are in Dev mode, the search is disabled.
+            </div>
+          {{- end }}
+        </aside>
+      </site-search>
+    </div>
+  </main>
+{{ end }}

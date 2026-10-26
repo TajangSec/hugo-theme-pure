@@ -1,0 +1,100 @@
+{{- /* Ported from `src/pages/blog/[...page].astro` */ -}}
+{{ define "main" }}
+  {{- $page := . -}}
+  {{- $posts := partialCached "blog-posts.html" $page -}}
+  {{- /* Page size comes from `pagination.pagerSize` in the site config. */ -}}
+  {{- $paginator := $page.Paginate $posts -}}
+  {{- $total := len $posts -}}
+  {{- $tags := site.Taxonomies.tags.ByCount -}}
+  {{- $categories := site.Taxonomies.categories.ByCount -}}
+
+  {{ partial "button.html" (dict "title" "Back" "href" "/" "variant" "back") }}
+  <main class="mt-6 lg:mt-10">
+    <div id="content-header" class="animate">
+      <h1 class="mb-6 mt-6 text-3xl font-medium sm:mt-10">Blog</h1>
+    </div>
+    {{- if eq $total 0 }}
+      <p>No posts yet.</p>
+    {{- else }}
+      <div class="grid gap-y-16 sm:grid-cols-[3fr_1fr] sm:gap-x-8">
+        <section aria-label="Blog posts list" class="animate" id="content">
+          <div class="mb-3 flex flex-col justify-between text-sm sm:mb-5 sm:flex-row">
+            <span class="text-muted-foreground">
+              Page {{ $paginator.PageNumber }} - Showing {{ len $paginator.Pages }} of {{ $total }} posts
+            </span>
+            <a aria-label="View all blog by years" href="{{ "archives" | relLangURL }}">View all posts by years →</a>
+          </div>
+          <ul class="flex flex-col gap-y-4 text-start">
+            {{- range $paginator.Pages }}
+              {{ partial "post-preview.html" (dict "post" . "detailed" true) }}
+            {{- end }}
+          </ul>
+          {{ partial "paginator.html" (dict
+            "paginator" $paginator
+            "prevText" "← Previous Posts"
+            "nextText" "Next Posts →"
+            )
+          }}
+        </section>
+
+        {{- if or $categories $tags }}
+          <aside class="animate" id="sidebar">
+            {{- /* 侧栏是一个固定高度的滚动区，分类多的时候（本站 66 个）会把 Tags
+                   整个顶出视口。所以只列前 6 个，「View all」放进标题行而不是另起
+                   一行 —— 既不占高度，也不会被下面的列表淹没。 */ -}}
+            {{- $maxCategories := 6 -}}
+            {{- with $categories }}
+              <h2 class="mb-2 flex items-center justify-between gap-2 text-lg font-medium">
+                <span class="flex items-center">
+                  {{ partial "icon.html" (dict "name" "folder" "class" "me-2") }}
+                  Categories
+                </span>
+                <a
+                  class="text-sm font-normal text-muted-foreground transition-colors hover:text-primary"
+                  aria-label="View all categories"
+                  href="{{ "categories" | relLangURL }}">View all →</a
+                >
+              </h2>
+              <ul class="flex flex-col">
+                {{- range first $maxCategories . }}
+                  <li>
+                    <a
+                      class="group flex items-center justify-between gap-3 rounded-lg px-3 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+                      href="{{ .Page.RelPermalink }}"
+                    >
+                      <span class="truncate">{{ .Term }}</span>
+                      <span class="text-xs tabular-nums opacity-60">{{ .Count }}</span>
+                    </a>
+                  </li>
+                {{- end }}
+                {{- /* 被折叠的分类用一行省略号提示，避免让人误以为只有这 6 个。 */ -}}
+                {{- if gt (len .) $maxCategories }}
+                  <li aria-hidden="true" class="mt-1 px-3 py-0.5 text-base leading-none tracking-[0.2em] text-muted-foreground">···</li>
+                {{- end }}
+              </ul>
+            {{- end }}
+
+            {{- with $tags }}
+              <h2 class="mb-3 mt-6 flex items-center justify-between gap-2 text-lg font-medium">
+                <span class="flex items-center">
+                  {{ partial "icon.html" (dict "name" "tag-2" "class" "me-2") }}
+                  Tags
+                </span>
+                <a
+                  class="text-sm font-normal text-muted-foreground transition-colors hover:text-primary"
+                  aria-label="View all tags"
+                  href="{{ "tags" | relLangURL }}">View all →</a
+                >
+              </h2>
+              <ul class="flex flex-wrap gap-2">
+                {{- range first 30 . }}
+                  <li>{{ partial "button.html" (dict "title" .Term "href" .Page.RelPermalink "variant" "pill") }}</li>
+                {{- end }}
+              </ul>
+            {{- end }}
+          </aside>
+        {{- end }}
+      </div>
+    {{- end }}
+  </main>
+{{ end }}

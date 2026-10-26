@@ -1,0 +1,32 @@
+{{- /*
+  Ported from `packages/pure/components/user/Card.astro`
+
+  Usage:
+    {{< card heading="…" subheading="…" date="…" href="…" />}}
+    {{< card heading="…" >}} …markdown… {{< /card >}}
+
+  Note: the tag name must not come from a template action (`<{{ $tag }}`), because
+  Go's html/template then escapes the whole element. Hence the explicit branches.
+*/ -}}
+{{- $href := .Get "href" -}}
+{{- if and $href (not (hasPrefix $href "http")) (not (hasPrefix $href "#")) -}}
+  {{- $href = $href | relURL -}}
+{{- end -}}
+{{- $heading := .Get "heading" -}}
+{{- $subheading := .Get "subheading" -}}
+{{- $date := .Get "date" -}}
+{{- $inner := partial "md-inner.html" (dict "inner" .Inner) -}}
+{{- $body := "" -}}
+{{- $body = printf `<div class="flex flex-col gap-y-1.5"><div class="flex flex-col gap-y-0.5">` -}}
+{{- with $heading }}{{ $body = printf `%s<h2 class="text-lg font-medium">%s</h2>` $body . }}{{ end -}}
+{{- with $subheading }}{{ $body = printf `%s<p class="text-muted-foreground">%s</p>` $body . }}{{ end -}}
+{{- with $date }}{{ $body = printf `%s<p class="text-muted-foreground">%s</p>` $body . }}{{ end -}}
+{{- $body = printf `%s</div>%s</div>` $body $inner -}}
+{{- $classes := "not-prose block relative rounded-2xl border bg-muted px-5 py-3" -}}
+{{- with $href }}{{ $classes = printf "%s transition-all hover:border-foreground/25 hover:shadow-sm" $classes }}{{ end -}}
+{{- with $.Get "class" }}{{ $classes = printf "%s %s" $classes . }}{{ end -}}
+{{- if $href -}}
+  <a class="{{ $classes }}" href="{{ $href }}">{{ $body | safeHTML }}</a>
+{{- else -}}
+  <div class="{{ $classes }}">{{ $body | safeHTML }}</div>
+{{- end -}}

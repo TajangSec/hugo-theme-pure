@@ -1,0 +1,18 @@
+{{- /*
+  Renders the body of a *paired* shortcode: raw HTML from nested shortcodes is
+  protected (see `wrap-html-blocks.html`) before the Markdown is rendered.
+  Fenced code blocks are passed through untouched.
+
+  Params: inner (string)
+*/ -}}
+{{- $inner := .inner | default "" -}}
+{{- $segments := split $inner "```" -}}
+{{- $out := slice -}}
+{{- range $i, $seg := $segments -}}
+  {{- if eq (mod $i 2) 1 -}}
+    {{- $out = $out | append $seg -}}
+  {{- else -}}
+    {{- $out = $out | append (partial "wrap-html-blocks.html" (dict "segment" $seg)) -}}
+  {{- end -}}
+{{- end -}}
+{{- delimit $out "```" | markdownify -}}

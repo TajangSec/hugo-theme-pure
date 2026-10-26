@@ -1,0 +1,38 @@
+{{- /* Ported from `packages/pure/components/pages/BackToTop.astro`
+       Params: header (id), content (id), needPercent (bool), otherIcons (bool) */ -}}
+{{- $needPercent := true -}}
+{{- if isset . "needPercent" }}{{ $needPercent = .needPercent }}{{ end -}}
+<div
+  class="z-10 md:z-50 group fixed bottom-8 end-4 transition-all flex flex-col gap-y-4 sm:end-8"
+  id="action-buttons"
+>
+  {{- if .otherIcons }}
+    <button
+      slot="other-icons"
+      aria-label="Toggle sidebar"
+      class="size-10 flex items-center justify-center rounded-full border-2 border-transparent bg-muted text-muted-foreground duration-300 hover:border-border/75 md:hidden sm:size-12"
+      id="sidebar-btn"
+    >
+      {{ partial "icon.html" (dict "name" "list") }}
+    </button>
+  {{- end }}
+  <scroll-button
+    data-header="{{ .header }}"
+    data-content="{{ .content }}"
+    data-percent="{{ $needPercent }}"
+  >
+    <button
+      aria-label="Back to Top"
+      class="relative size-10 flex items-center justify-center rounded-full border-2 border-transparent bg-muted text-muted-foreground duration-300 hover:border-border/75 sm:size-12 opacity-0"
+      id="to-top-btn"
+    >
+      <div
+        class="top-text absolute bottom-0 end-0 start-0 top-0 flex items-center justify-center group-[.ended]:opacity-0"
+      >
+        <span class="text">0</span>
+        <span class="text-xs">%</span>
+      </div>
+      {{ partial "icon.html" (dict "name" "up" "class" "top-icon group-[.ended]:opacity-100") }}
+    </button>
+  </scroll-button>
+</div>

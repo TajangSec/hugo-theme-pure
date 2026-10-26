@@ -1,0 +1,18 @@
+{{- /* Common page layout — ported from `src/layouts/CommonPage.astro`.
+       Used for about / links / projects / terms / docs and any other regular page. */ -}}
+{{ define "main" }}
+  {{- $page := . -}}
+  {{- $sidebar := "" -}}
+  {{- if and (ne $page.Params.toc false) $page.Fragments.Headings -}}
+    {{- $sidebar = partial "toc.html" (dict "page" $page) -}}
+  {{- end -}}
+
+  {{ partial "content-shell.html" (dict
+    "page" $page
+    "back" ($page.Params.back | default "/")
+    "sidebar" $sidebar
+    "header" (partial "common-header.html" (dict "page" $page))
+    "body" $page.Content
+    )
+  }}
+{{ end }}

@@ -1,0 +1,65 @@
+{{- /* Ported from `src/components/BaseHead.astro` */ -}}
+{{- $p := site.Params -}}
+{{- $pageTitle := .Title -}}
+{{- $siteTitle := cond (eq $pageTitle "") site.Title (printf "%s %s %s" $pageTitle (default "•" $p.titleDelimiter) site.Title) -}}
+{{- $description := .Description | default $p.description -}}
+{{- $ogImage := .Params.heroImage | default $p.socialCard -}}
+{{- if and $ogImage (not (hasPrefix $ogImage "http")) }}{{ $ogImage = absURL $ogImage }}{{ end -}}
+<meta charset="utf-8" />
+<meta
+  content="width=device-width, initial-scale=1.0, shrink-to-fit=no, viewport-fit=cover"
+  name="viewport"
+/>
+<meta content="IE=edge" http-equiv="X-UA-Compatible" />
+<title>{{ $siteTitle }}</title>
+
+{{- /* Icons / Favicon */}}
+<link rel="icon" href="{{ default "/favicon/favicon.ico" $p.favicon }}" />
+<link rel="shortcut icon" href="{{ default "/favicon/favicon.ico" $p.favicon }}" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+<link rel="manifest" href="/favicon/site.webmanifest" />
+
+{{- /* Font preloads — mirrors Astro's `<Font preload>` for the normal styles */}}
+<link rel="preload" href="{{ "fonts/satoshi-400.woff2" | relURL }}" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="{{ "fonts/satoshi-500.woff2" | relURL }}" as="font" type="font/woff2" crossorigin />
+
+{{- /* Canonical URL */}}
+<link rel="canonical" href="{{ .Permalink }}" />
+
+{{- /* Primary Meta Tags */}}
+<meta content="{{ $siteTitle }}" name="title" />
+<meta content="{{ $description }}" name="description" />
+<meta content="{{ $p.author }}" name="author" />
+<meta name="color-scheme" content="light dark" />
+{{ with site.Params.themeColor }}<meta name="theme-color" content="{{ . }}" />{{ end }}
+
+{{- /* Open Graph / Facebook */}}
+<meta content="{{ cond (eq .Kind "page") "article" "website" }}" property="og:type" />
+<meta content="{{ $pageTitle }}" property="og:title" />
+<meta content="{{ $description }}" property="og:description" />
+<meta content="{{ .Permalink }}" property="og:url" />
+<meta content="{{ site.Title }}" property="og:site_name" />
+<meta content="{{ default "en_US" $p.locale.attrs }}" property="og:locale" />
+<meta content="{{ $ogImage }}" property="og:image" />
+<meta content="1200" property="og:image:width" />
+<meta content="630" property="og:image:height" />
+{{- if eq .Kind "page" }}
+  <meta content="{{ $p.author }}" property="article:author" />
+  <meta content="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}" property="article:published_time" />
+{{- end }}
+
+{{- /* Twitter */}}
+<meta content="summary_large_image" property="twitter:card" />
+<meta content="{{ .Permalink }}" property="twitter:url" />
+<meta content="{{ $pageTitle }}" property="twitter:title" />
+<meta content="{{ $description }}" property="twitter:description" />
+<meta content="{{ $ogImage }}" property="twitter:image" />
+
+{{- /* RSS auto-discovery */}}
+{{ with .OutputFormats.Get "rss" }}
+  <link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .Permalink }}" />
+{{ end }}
+
+<meta content="{{ hugo.Generator }}" name="generator" />

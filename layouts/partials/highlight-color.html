@@ -1,0 +1,34 @@
+{{- /*
+  Resolves a page's highlight colour, mirroring the Astro theme's
+  `highlightColor` / `heroImage.color` pair — both are explicit front-matter
+  fields there, and both are honoured here.
+
+  Priority:
+    1. `highlightColor`   — front matter
+    2. `heroImageColor`   — front matter (Astro's `heroImage.color`)
+    3. the dominant colour of `heroImage`, but only when the site opts in with
+       `params.highlight.autoFromHeroImage = true` and the image is a page-bundle
+       resource (Hugo's image `.Colors`). Off by default: an arbitrary cover can
+       yield a muddy tint, so Astro leaves this to the author too.
+
+  Returns "" when nothing applies, in which case every
+  `var(--highlight-color, <fallback>)` falls back to `--primary`.
+
+  Params: page
+*/ -}}
+{{- $page := .page -}}
+{{- $color := "" -}}
+{{- with $page.Params.highlightColor }}{{ $color = . }}{{ end -}}
+{{- if not $color }}{{ with $page.Params.heroImageColor }}{{ $color = . }}{{ end }}{{ end -}}
+
+{{- if and (not $color) (site.Params.highlight.autoFromHeroImage) -}}
+  {{- with $page.Params.heroImage -}}
+    {{- if not (or (hasPrefix . "http://") (hasPrefix . "https://")) -}}
+      {{- with $page.Resources.GetMatch (path.Base .) -}}
+        {{- with .Colors }}{{ $color = index . 0 }}{{ end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- return $color -}}

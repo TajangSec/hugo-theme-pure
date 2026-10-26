@@ -1,0 +1,41 @@
+{{- /* Ported from `packages/pure/components/user/Tabs.astro` (Starlight tabs)
+       Usage:
+         {{< tabs >}}
+         {{< tab label="pnpm" >}} … {{< /tab >}}
+         {{< tab label="npm" >}} … {{< /tab >}}
+         {{< /tabs >}} */ -}}
+{{- $syncKey := .Get "sync-key" -}}
+{{- $re := `(?s)<!--pure-tab label="([^"]*)" id="([^"]*)" tabid="([^"]*)"-->(.*?)<!--pure-tab-end-->` -}}
+{{- $matches := findRESubmatch $re .Inner -}}
+{{- if $matches -}}
+  <starlight-tabs{{ with $syncKey }} data-sync-key="{{ . }}"{{ end }}>
+    <div class="tablist-wrapper not-content">
+      <ul role="tablist" class="my-0 not-prose">
+        {{- range $i, $m := $matches }}
+          <li role="presentation" class="tab">
+            <a
+              role="tab"
+              draggable="false"
+              href="#{{ index $m 2 }}"
+              id="{{ index $m 3 }}"
+              aria-selected="{{ if eq $i 0 }}true{{ else }}false{{ end }}"
+              {{ if ne $i 0 }}tabindex="-1"{{ end }}>{{ index $m 1 }}</a
+            >
+          </li>
+        {{- end }}
+      </ul>
+    </div>
+    {{- range $i, $m := $matches }}
+      <div
+        role="tabpanel"
+        id="{{ index $m 2 }}"
+        aria-labelledby="{{ index $m 3 }}"
+        {{ if ne $i 0 }}hidden{{ end }}>
+        {{ index $m 4 | safeHTML }}
+      </div>
+    {{- end }}
+    {{- with $syncKey }}<starlight-tabs-restore></starlight-tabs-restore>{{ end }}
+  </starlight-tabs>
+{{- else -}}
+  {{ .Inner | safeHTML }}
+{{- end -}}

@@ -1,0 +1,14 @@
+{{- /* Latest blog posts inside a home-page section.
+       Usage: {{< posts count="10" >}} */ -}}
+{{- /* Referencing .Inner keeps Hugo happy when the shortcode is self-closed (`{{< x />}}`). */ -}}
+{{- $_ := .Inner -}}
+{{- $count := int (.Get "count" | default 10) -}}
+{{- $posts := partialCached "blog-posts.html" .Page -}}
+<ul class="flex flex-col gap-y-1.5 sm:gap-y-2">
+  {{- range first $count $posts }}
+    <li class="flex flex-col gap-x-2 sm:flex-row">
+      {{ partial "post-preview.html" (dict "post" .) }}
+    </li>
+  {{- end }}
+</ul>
+{{ partial "button.html" (dict "title" "More posts" "href" ("blog" | relLangURL) "variant" "ahead" "class" "w-fit self-end") }}

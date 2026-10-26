@@ -1,0 +1,84 @@
+{{- $js := resources.Get "js/main.js" | js.Build (dict "target" "es2020" "minify" hugo.IsProduction) -}}
+{{- if hugo.IsProduction -}}
+  {{- $js = $js | fingerprint -}}
+{{- end -}}
+<script src="{{ $js.RelPermalink }}" defer{{ if hugo.IsProduction }} integrity="{{ $js.Data.Integrity }}"{{ end }}></script>
+
+{{- /* Medium Zoom (image lightbox) — only where there is something to zoom.
+       Encrypted posts keep it unconditionally: their images live in the
+       ciphertext, so the render hook never runs in this pass. */ -}}
+{{- $wantZoom := or ($.Store.Get "hasZoomable") $.Params.password -}}
+{{- if and (not $wantZoom) (eq $.Kind "page") -}}
+  {{- /* raw <img> in markdown never reaches the image render hook */ -}}
+  {{- $wantZoom = strings.Contains (string $.Content) "<img" -}}
+{{- end -}}
+{{- with site.Params.mediumZoom -}}
+  {{- if and .enable $wantZoom }}
+    <script
+      src="{{ site.Params.npmCDN | default "https://cdn.jsdelivr.net/npm" }}/medium-zoom@1.1.0/dist/pure/medium-zoom.min.umd.js"
+      defer
+    ></script>
+    <script>
+      window.addEventListener('DOMContentLoaded', function () {
+        if (typeof window.mediumZoom !== 'function') return
+        window.__pureZoom = window.mediumZoom({{ .selector | default ".prose .zoomable" }}, {
+          background: 'hsl(var(--background) / 0.8)'
+        })
+      })
+    </script>
+  {{- end -}}
+{{- end }}
+
+{{- /* QR code (copyright card) */ -}}
+{{- if .Store.Get "hasQrcode" }}
+  <script
+    src="{{ site.Params.npmCDN | default "https://cdn.jsdelivr.net/npm" }}/qrcodejs@1.0.0/qrcode.min.js"
+    defer
+  ></script>
+{{- end }}
+
+{{- /* Pagefind UI (search page only) */ -}}
+{{- if and (.Store.Get "hasSearch") hugo.IsProduction }}
+  <link rel="stylesheet" href="{{ "pagefind/pagefind-ui.css" | relURL }}" />
+  <script src="{{ "pagefind/pagefind-ui.js" | relURL }}" defer></script>
+{{- end }}
+
+{{- /* Mermaid diagrams (only on pages that use them) */ -}}
+{{- if .Store.Get "hasMermaid" }}
+  <script type="module">
+    const blocks = [...document.querySelectorAll('pre.mermaid')]
+    blocks.forEach((el) => {
+      el.dataset.mermaidSrc = el.textContent
+    })
+
+    let mermaid
+    const renderMermaid = async () => {
+      try {
+        if (!mermaid) {
+          mermaid = (
+            await import(
+              '{{ site.Params.npmCDN | default "https://cdn.jsdelivr.net/npm" }}/mermaid@11/dist/mermaid.esm.min.mjs'
+            )
+          ).default
+        }
+        const dark = document.documentElement.classList.contains('dark')
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: 'loose',
+          theme: dark ? 'dark' : 'default'
+        })
+        blocks.forEach((el) => {
+          el.removeAttribute('data-processed')
+          el.textContent = el.dataset.mermaidSrc
+        })
+        await mermaid.run({ nodes: blocks })
+      } catch (err) {
+        console.error('mermaid failed:', err)
+        // 渲染失败时把原始源码显示出来，而不是留一块空白
+        blocks.forEach((el) => el.setAttribute('data-processed', 'error'))
+      }
+    }
+    renderMermaid()
+    window.addEventListener('pure:theme-change', renderMermaid)
+  </script>
+{{- end }}

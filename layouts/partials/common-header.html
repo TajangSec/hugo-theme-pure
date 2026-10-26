@@ -1,0 +1,6 @@
+{{- /* Ported from the `header` slot of `src/layouts/CommonPage.astro`
+       Params: page */ -}}
+<h1 class="text-2xl font-medium sm:mb-2 sm:text-3xl">{{ .page.Title }}</h1>
+{{- if .page.Params.view }}
+  <div class="italic text-muted-foreground"></div>
+{{- end }}

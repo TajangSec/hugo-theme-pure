@@ -1,0 +1,34 @@
+{{- /*
+  Image render hook.
+
+  * Resolves `./foo.jpg` in a page bundle to the resource's absolute URL, so the
+    markup does not depend on the page URL keeping its trailing slash.
+  * Adds `class="zoomable"`, which is what `mediumZoom.selector`
+    (`.prose .zoomable`) looks for — mirrors the Astro theme's
+    `remarkAddZoomable`.
+  * Emits `width`/`height` when the resource is known, to avoid layout shift.
+*/ -}}
+{{- .Page.Store.Set "hasZoomable" true -}}
+{{- $dest := .Destination -}}
+{{- $page := .Page -}}
+{{- $src := $dest -}}
+{{- $w := 0 -}}
+{{- $h := 0 -}}
+{{- if not (or (hasPrefix $dest "http://") (hasPrefix $dest "https://") (hasPrefix $dest "data:")) -}}
+  {{- with $page.Resources.GetMatch (path.Base $dest) -}}
+    {{- $src = .RelPermalink -}}
+    {{- $w = .Width -}}
+    {{- $h = .Height -}}
+  {{- else -}}
+    {{- $src = $dest | relURL -}}
+  {{- end -}}
+{{- end -}}
+<img
+  src="{{ $src }}"
+  alt="{{ .PlainText }}"
+  class="zoomable"
+  loading="lazy"
+  decoding="async"
+  {{- if $w }} width="{{ $w }}" height="{{ $h }}"{{ end }}
+  {{- with .Title }} title="{{ . }}"{{ end }}
+/>

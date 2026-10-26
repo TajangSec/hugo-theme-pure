@@ -1,0 +1,32 @@
+{{- /*
+  Brand tile used by the `buttons` shortcode. Resolves a tool name to
+  `assets/icons/tools/<slug>.svg`, trying progressively shorter slugs so that
+  "Premiere Pro" finds `premiere.svg` and "Sublime Text" finds `sublime.svg`.
+  Falls back to the first letter.
+
+  Params: name
+*/ -}}
+{{- $name := .name -}}
+{{- $words := split $name " " -}}
+{{- $candidates := slice -}}
+{{- range $i := seq (len $words) -}}
+  {{- $candidates = $candidates | append (lower (delimit (first $i $words) "")) -}}
+{{- end -}}
+{{- $candidates = $candidates | append (lower (replaceRE `[^a-zA-Z0-9]+` "" $name)) -}}
+
+{{- $found := "" -}}
+{{- range $candidates -}}
+  {{- if not $found -}}
+    {{- with resources.Get (printf "icons/tools/%s.svg" .) -}}
+      {{- $found = . -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- with $found -}}
+  {{- .Content | replaceRE `<\?xml[^>]*\?>` "" | safeHTML -}}
+{{- else -}}
+  <span class="flex h-full w-full items-center justify-center font-medium uppercase">
+    {{ substr $name 0 1 }}
+  </span>
+{{- end -}}

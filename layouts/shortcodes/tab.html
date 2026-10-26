@@ -1,0 +1,7 @@
+{{- /* Child of the `tabs` shortcode. Emits a marker that `tabs.html` collects.
+       Usage: {{< tab label="pnpm" >}} …markdown… {{< /tab >}} */ -}}
+{{- $ord := .Ordinal -}}
+{{- $label := .Get "label" | default (printf "Tab %d" $ord) -}}
+<!--pure-tab label="{{ $label }}" id="panel-{{ $ord }}" tabid="tab-{{ $ord }}"-->
+{{ partial "md-inner.html" (dict "inner" .Inner) }}
+<!--pure-tab-end-->

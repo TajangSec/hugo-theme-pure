@@ -1,0 +1,99 @@
+{{- /* Ported from `packages/pure/components/pages/Copyright.astro` + `advanced/QRCode.astro`
+       Params: page, class */ -}}
+{{- $page := .page -}}
+{{- $page.Store.Set "hasQrcode" true -}}
+{{- $p := site.Params -}}
+{{- $url := $page.Permalink -}}
+{{- $title := $page.Title -}}
+{{- $quoted := $title | urlquery -}}
+{{- $qurl := $url | urlquery -}}
+{{- $image := "" -}}
+{{- with $page.Params.heroImage -}}
+  {{- $image = partial "image-url.html" (dict "page" $page "src" .) | absURL -}}
+{{- end -}}
+{{- $dateFormat := site.Params.locale.dateFormat | default "Jan 2, 2006" -}}
+{{- $longDateFormat := site.Params.locale.longDateFormat | default "January 2, 2006" -}}
+{{- $shares := dict
+  "weibo" (printf "http://service.weibo.com/share/share.php?url=%s&title=%s&pic=%s" $url $quoted $image)
+  "x" (printf "https://x.com/intent/tweet?text='%s'&url='%s'&via='%s'" $quoted $qurl ($p.author | urlquery))
+  "bluesky" (printf "https://bsky.app/intent/compose?text=%s%%0A%s" $quoted $qurl)
+-}}
+{{- $icons := dict "weibo" "weibo" "x" "x" "bluesky" "bluesky" -}}
+
+<div class="relative flex flex-col gap-y-2 rounded-xl border px-3 sm:px-4 py-2 sm:py-3 {{ .class }}">
+  {{ partial "icon.html" (dict "name" "copyright" "class" "absolute end-4 top-4 size-20 opacity-10") }}
+
+  {{- /* title & link */}}
+  <div class="flex flex-col">
+    <div class="font-medium text-foreground">{{ $title }}</div>
+    <div class="text-sm line-clamp-1">{{ $url }}</div>
+  </div>
+
+  {{- /* common info */}}
+  <div class="flex flex-row flex-wrap justify-start gap-x-5 gap-y-1 sm:gap-x-8">
+    <div class="flex gap-x-2 sm:flex-col">
+      <span>Author</span>
+      <span class="text-sm text-foreground max-sm:place-self-center">{{ $p.author }}</span>
+    </div>
+    {{- with $page.Date }}
+      <div class="flex gap-x-2 sm:min-w-16 sm:flex-col">
+        <span>Published at</span>
+        <span class="text-sm text-foreground max-sm:place-self-center">{{ .Format $longDateFormat }}</span>
+      </div>
+    {{- end }}
+    <div class="flex gap-x-2 sm:flex-col">
+      <span>Copyright</span>
+      <a
+        class="text-sm text-foreground max-sm:place-self-center"
+        href="https://creativecommons.org/licenses/by/4.0/"
+        target="_blank">CC BY-NC-SA 4.0</a
+      >
+    </div>
+  </div>
+
+  {{- /* functions */}}
+  <div class="relative">
+    <div class="flex flex-row gap-3">
+      <button
+        id="copy-link"
+        aria-label="Copy link"
+        class="group rounded-full bg-muted p-1 text-muted-foreground transition-colors hover:text-primary sm:p-1.5"
+      >
+        {{ partial "icon.html" (dict "name" "link" "class" "size-5") }}
+      </button>
+      <button
+        id="get-qrcode"
+        aria-label="Get QR code"
+        class="group rounded-full bg-muted p-1 text-muted-foreground transition-colors hover:text-primary sm:p-1.5"
+      >
+        {{ partial "icon.html" (dict "name" "qrcode" "class" "size-5") }}
+      </button>
+      {{- range $p.content.share }}
+        <a
+          href="{{ index $shares . }}"
+          target="_blank"
+          id="share-{{ . }}"
+          aria-label="Share to {{ . }}"
+          class="group rounded-full bg-muted p-1 text-muted-foreground transition-colors hover:text-primary sm:p-1.5"
+        >
+          {{ partial "icon.html" (dict "name" (index $icons .) "class" "size-5") }}
+        </a>
+      {{- end }}
+    </div>
+    <div
+      id="qrcode-container"
+      class="absolute z-10 -mt-2 box-content max-h-0 max-w-44 overflow-hidden rounded-xl border bg-muted p-4 opacity-0 transition-all duration-300 ease-in-out"
+    ></div>
+  </div>
+</div>
+
+<div class="mx-6 rounded-b-xl border border-t-0 px-3 pb-1.5 pt-1 sm:mx-8 sm:px-4">
+  <a
+    href="{{ "/projects#sponsorship" | relURL }}"
+    class="flex items-center justify-between text-muted-foreground no-underline"
+    target="_blank"
+  >
+    <span>Buy me a cup of coffee ☕.</span>
+    {{ partial "icon.html" (dict "name" "receive-money" "class" "box-content size-5 p-1") }}
+  </a>
+</div>

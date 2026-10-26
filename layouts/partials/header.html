@@ -1,0 +1,65 @@
+{{- /* Ported from `packages/pure/components/basic/Header.astro` */ -}}
+{{- $p := site.Params -}}
+<header-component
+  class="group sticky top-4 z-50 max-md:z-30 mb-12 flex items-center justify-between rounded-xl border border-transparent max-sm:py-1 sm:rounded-2xl"
+>
+  <a
+    class="z-30 text-xl font-medium group-[.not-top]:ms-2 sm:group-[.not-top]:ms-3"
+    style="transition:margin-inline 0.3s"
+    href="{{ site.Home.RelPermalink }}"
+    aria-label="Brand">{{ site.Title }}</a
+  >
+
+  <div class="flex items-center gap-x-2">
+    {{- /* Menu links */}}
+    <div
+      id="headerExpandContent"
+      class="end-0 start-0 top-12 grid border border-transparent group-[.not-top]:rounded-xl group-[.expanded]:opacity-100 dark:group-[.expanded.not-top]:bg-muted max-sm:absolute max-sm:opacity-0 max-sm:group-[.not-top]:border-border max-sm:group-[.expanded.not-top]:bg-background max-sm:group-[.not-top]:px-4 max-sm:group-[.not-top]:py-2 sm:grid-rows-1"
+    >
+      <div class="flex flex-col items-center justify-center overflow-hidden sm:flex-row">
+        {{- range $p.header.menu }}
+          <a
+            href="{{ .link | relLangURL }}"
+            class="w-full flex-none grow py-2 text-right font-medium transition-none hover:text-primary sm:w-fit sm:px-3"
+            aria-label="Nav menu item"
+            >{{ .title }}</a
+          >
+        {{- end }}
+        <div class="flex w-full grow flex-row justify-end gap-x-3 sm:w-fit sm:gap-x-5">
+          <a class="px-1 py-2 transition-none sm:px-2" href="{{ "search" | relLangURL }}" title="Search">
+            <span class="sr-only">Search</span>
+            {{ partial "icon.html" (dict "name" "search" "class" "size-5") }}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {{- /* buttons */}}
+    <div class="z-30 flex gap-x-4 group-[.not-top]:gap-x-2" style="transition:gap 0.3s">
+      <button
+        id="toggleDarkMode"
+        class="group/dark box-content size-5 rounded-md border p-1.5 transition-colors hover:bg-border sm:group-[.not-top]:rounded-xl"
+      >
+        <span class="sr-only">Dark Theme</span>
+        {{ partial "icon.html" (dict "name" "computer" "class" "system size-5 group-hover/dark:text-primary") }}
+        {{ partial "icon.html" (dict "name" "sun" "class" "light hidden size-5 group-hover/dark:text-primary") }}
+        {{ partial "icon.html" (dict "name" "moon" "class" "dark hidden size-5 group-hover/dark:text-primary") }}
+      </button>
+      <button
+        id="toggleMenu"
+        class="rounded-md border p-1.5 transition-colors hover:bg-border sm:hidden sm:group-[.not-top]:rounded-xl"
+      >
+        <span class="sr-only">Menu</span>
+        {{ partial "icon.html" (dict "name" "menu" "class" "size-5") }}
+      </button>
+    </div>
+  </div>
+</header-component>
+
+{{- /* Load icons quicker, before the bundle runs */}}
+<script>
+  ;(function () {
+    var el = document.getElementById('toggleDarkMode')
+    if (el) el.dataset.theme = localStorage.getItem('theme') || 'system'
+  })()
+</script>

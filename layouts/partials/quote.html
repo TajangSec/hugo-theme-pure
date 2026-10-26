@@ -1,0 +1,18 @@
+{{- /* Ported from `packages/pure/components/advanced/Quote.astro`
+       Params: class */ -}}
+{{- $q := site.Params.quote -}}
+<quote-component
+  class="not-prose inline-block {{ .class }}"
+  data-server="{{ $q.server }}"
+  data-target="{{ $q.target }}"
+>
+  <div class="flex flex-row items-center gap-x-3 rounded-full border px-4 py-2 text-sm shadow-sm">
+    <span class="relative flex items-center justify-center">
+      <span
+        class="absolute size-2 animate-ping rounded-full border border-green-400 bg-green-400 opacity-75"
+      ></span>
+      <span class="size-2 rounded-full bg-green-400"></span>
+    </span>
+    <p id="quote-sentence" class="font-medium text-muted-foreground">Loading...</p>
+  </div>
+</quote-component>

@@ -1,0 +1,307 @@
+/* Ported from astro-theme-pure `src/assets/styles/global.css`.
+ * The Shiki-specific `.astro-code` wrapper is renamed to `.code-block`, which is
+ * what `layouts/_default/_markup/render-codeblock.html` emits. */
+
+/* [Animation] */
+@keyframes fade-in-up {
+  0% {
+    transform: translateY(2rem);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.animate {
+  opacity: 0;
+  animation: 300ms fade-in-up;
+  animation-fill-mode: forwards;
+}
+@media (prefers-reduced-motion) {
+  .animate {
+    opacity: 0;
+    animation: 100ms fade-in-up;
+    animation-fill-mode: forwards;
+  }
+}
+#content-header {
+  animation-delay: 50ms;
+}
+#content {
+  animation-delay: 100ms;
+}
+#sidebar {
+  animation-delay: 150ms;
+}
+
+/* [Katex] */
+span.katex-display {
+  overflow-y: scroll;
+  padding: 0.5rem;
+}
+.katex-html {
+  overflow: auto hidden;
+  padding: 3px;
+}
+.katex-html .base {
+  margin-block: 0;
+  margin-inline: auto;
+}
+.katex-html .tag {
+  position: relative !important;
+  display: inline-block;
+  padding-inline-start: 0.5rem;
+}
+
+/* [Code block] */
+.code-block {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.75rem;
+  background-color: hsl(var(--muted) / var(--un-bg-opacity, 1)) !important;
+  display: flex;
+  flex-direction: column;
+  /* The line-number gutter is a square `code::before` strip pinned to the left
+   * edge; without clipping it paints over the bottom-left rounded corner. */
+  overflow: hidden;
+}
+.code-block pre {
+  margin: 0;
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+  padding-inline: 0;
+  background: none;
+  overflow-x: scroll;
+}
+.code-block pre code {
+  display: block;
+  width: fit-content;
+  min-width: 100%;
+  min-height: 1.5rem;
+  counter-reset: step;
+  counter-increment: step 0;
+}
+.code-block pre code::before {
+  position: absolute;
+  inset-inline-start: 0;
+  width: 2.75rem;
+  top: 0.8571429em;
+  bottom: 0;
+  content: '';
+  display: block;
+  background-color: hsl(var(--muted) / var(--un-bg-opacity, 1));
+  z-index: 1;
+}
+.code-block .line {
+  display: block;
+  padding-inline-end: 3rem;
+}
+/* Chroma emits `<span class="ln">` for inline line numbers — styled to match the
+ * sticky gutter of the original Shiki output. */
+.code-block .ln {
+  position: sticky;
+  inset-inline-start: 0;
+  justify-content: end;
+  display: inline-flex;
+  width: 2rem;
+  padding-inline-end: 0.75rem;
+  box-sizing: content-box;
+  color: hsl(var(--muted-foreground) / 0.6);
+  background-color: hsl(var(--muted) / var(--un-bg-opacity, 1));
+  user-select: none;
+  -webkit-user-select: none;
+  z-index: 2;
+}
+.code-block .line:last-child:empty,
+.code-block .line:last-child:has(> span:empty:only-child) {
+  display: none;
+}
+/* The Shiki build swaps the gutter counter for a +/- sign on diff lines; with
+ * Chroma the gutter cell is a real element, so do it with font-size + ::after. */
+.code-block .diff .ln {
+  font-size: 0;
+}
+.code-block .diff .ln::after {
+  font-size: 0.875rem;
+}
+.code-block .diff.add .ln::after {
+  content: '+';
+}
+.code-block .diff.remove .ln::after {
+  content: '-';
+}
+.code-block .hl .ln {
+  background-color: rgba(149, 166, 183, 0.32);
+}
+.code-block .diff.add .ln {
+  background-color: rgba(16, 185, 129, 0.16);
+}
+.code-block .diff.remove .ln {
+  background-color: rgba(244, 63, 94, 0.16);
+}
+
+/* [Code block chrome] */
+.code-block:has(code) {
+  position: relative;
+}
+.code-block:has(.title) {
+  padding-top: 2rem;
+}
+.code-block:has(.title) code::before {
+  top: calc(2rem + 0.8571429em);
+}
+.code-block .title {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0.5rem;
+  z-index: 3;
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground) / var(--un-text-opacity, 1));
+}
+.code-block .language {
+  transition: opacity 0.3s;
+  position: absolute;
+  top: 0.75rem;
+  right: 0;
+  z-index: 3;
+  font-size: 0.875rem;
+  padding-inline-end: 1rem;
+  color: hsl(var(--muted-foreground) / var(--un-text-opacity, 1));
+  user-select: none;
+}
+.code-block button.copy {
+  transition: opacity 0.3s;
+  opacity: 0;
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 3;
+  user-select: none;
+  color: hsl(var(--muted-foreground) / var(--un-text-opacity, 1));
+}
+.code-block button.copy .success {
+  display: none;
+}
+.code-block button.copy .success::before {
+  content: 'Copied!';
+  position: absolute;
+  right: 100%;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.75rem;
+  padding: 0.5rem;
+  margin-right: 0.5rem;
+  border-radius: 0.25rem;
+  color: hsl(var(--muted-foreground) / var(--un-text-opacity, 1));
+  background-color: hsl(var(--card) / var(--un-bg-opacity, 1));
+  border: 1px solid hsl(var(--border) / var(--un-border-opacity, 1));
+}
+.code-block button.copy.copied .success {
+  display: block;
+}
+.code-block button.copy.copied .ready {
+  display: none;
+}
+.code-block:hover button.copy,
+.code-block:focus-within button.copy {
+  opacity: 1;
+}
+.code-block:hover .language,
+.code-block:focus-within .language {
+  opacity: 0;
+}
+
+/* Highlighted & diffs. `hl_lines` in Chroma emits `.hl`, the Shiki notation
+ * transformers emit `.highlighted` / `.diff`. */
+.code-block .highlighted,
+.code-block .hl,
+.code-block .diff {
+  min-width: 100%;
+  display: inline-block;
+}
+.code-block .highlighted,
+.code-block .hl,
+.code-block .highlighted::before,
+.code-block .hl::before {
+  background-color: rgba(149, 166, 183, 0.32) !important;
+}
+.code-block .diff.remove {
+  background-color: rgba(244, 63, 94, 0.16);
+}
+.code-block .diff.remove::before {
+  background-color: rgba(244, 63, 94, 0.16);
+  content: '-';
+}
+.code-block .diff.add {
+  background-color: rgba(16, 185, 129, 0.16);
+}
+.code-block .diff.add::before {
+  background-color: rgba(16, 185, 129, 0.16);
+  content: '+';
+}
+
+/* Collapse */
+.code-block .collapse-toggle {
+  z-index: 3;
+  padding: 0.25rem;
+  user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 0.3rem;
+  box-sizing: border-box;
+  margin: 0;
+  border-top: 1px solid hsl(var(--border) / var(--un-border-opacity, 1));
+  color: hsl(var(--muted-foreground) / var(--un-text-opacity, 1));
+  font-size: 0.875rem;
+}
+.code-block .collapse-toggle .desc::before {
+  content: 'Collapse';
+}
+.code-block .collapse-toggle svg {
+  transition: transform 0.2s ease;
+  transform: rotate(180deg);
+}
+.code-block.collapsed pre {
+  max-height: 15rem;
+  overflow: hidden;
+}
+.code-block.collapsed .collapse-toggle {
+  margin: 0.5rem;
+  border: 1px solid hsl(var(--border) / var(--un-border-opacity, 1));
+}
+.code-block.collapsed .collapse-toggle .desc::before {
+  content: 'Show all';
+}
+.code-block.collapsed .collapse-toggle svg {
+  transform: rotate(0deg);
+}
+.code-block.collapsed .collapse-fade {
+  z-index: 2;
+  user-select: none;
+  pointer-events: none;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8rem;
+  background: linear-gradient(to bottom, transparent 0%, hsl(var(--muted) / var(--un-bg-opacity, 1)) 60%);
+}
+
+/* Scroll bar */
+:root {
+  --scrollbar-thumb: hsl(var(--muted-foreground) / var(--un-bg-opacity, 0.3));
+}
+:not(html) ::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+:not(html) ::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 999px;
+}

@@ -1,0 +1,9 @@
+{{- /* Ported from `packages/pure/components/user/Steps.astro` (Starlight)
+       Usage:
+         {{< steps >}}
+         1. first step
+         2. second step
+         {{< /steps >}} */ -}}
+{{- $html := partial "md-inner.html" (dict "inner" .Inner) -}}
+{{- $html = replace $html "<ol>" `<ol class="sl-steps" role="list">` 1 -}}
+{{ $html | safeHTML }}

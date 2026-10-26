@@ -1,0 +1,64 @@
+{{- /*
+  Encrypted post container.
+
+  The plaintext never reaches the published HTML: `scripts/encrypt-posts.mjs`
+  renders a throwaway pass with `encrypt.emitPlaintext = true` into a temp dir,
+  encrypts the body + TOC, and writes the ciphertext to `data/encrypted/`.
+  The normal build then reads that vault and emits only the ciphertext.
+
+  Consequence: a plain `hugo` build cannot leak anything — it simply reports
+  that the ciphertext has not been generated yet.
+*/ -}}
+{{- $key := .page.File.Path | default .page.RelPermalink -}}
+{{- /* Must match `slugOf` in scripts/encrypt-posts.mjs. */ -}}
+{{- $slug := substr (sha1 $key) 0 12 -}}
+{{- $gate := partial "password-gate.html" .page -}}
+
+{{- if site.Params.encrypt.emitPlaintext -}}
+  {{- /* Pass 1 only — sliced out by the encrypt script and thrown away. */ -}}
+  <div id="encrypted-content" class="password-protected-content" data-encrypt="{{ $key }}">
+    {{ $gate | safeHTML }}
+    <div id="decrypted-content" class="hidden"></div>
+    {{- /* Literal HTML comments are stripped by Go's html/template; they have to
+           go through an action to reach the output. */}}
+    {{ "<!--encrypt:content-->" | safeHTML }}
+    {{ .body | safeHTML }}
+    {{ "<!--/encrypt:content-->" | safeHTML }}
+    {{ "<!--encrypt:toc-->" | safeHTML }}
+    {{ .toc | safeHTML }}
+    {{ "<!--/encrypt:toc-->" | safeHTML }}
+  </div>
+{{- else -}}
+  {{- $vault := index hugo.Data.encrypted $slug -}}
+  {{- if $vault -}}
+    {{- /* The formula markup lives inside the ciphertext, so the normal render
+           never sets `hasMath`; the vault carries the flag from the plaintext
+           pass so `styles.html` still links KaTeX. */ -}}
+    {{- if $vault.hasMath }}{{ $.page.Store.Set "hasMath" true }}{{ end -}}
+    {{- /* Build the attribute string as a whole: a template action sitting in
+         attribute-name position gets sanitised to `ZgotmplZ` by Go's
+         html/template, which silently ate `data-toc-encrypted` before. */ -}}
+    {{- $attrs := printf `id="encrypted-content" class="password-protected-content" data-encrypted="%s"` $vault.content -}}
+    {{- with $vault.toc }}{{ $attrs = printf `%s data-toc-encrypted="%s"` $attrs . }}{{ end -}}
+    <div {{ $attrs | safeHTMLAttr }} data-pagefind-ignore>
+      {{ $gate | safeHTML }}
+      <div id="decrypted-content" class="hidden"></div>
+    </div>
+  {{- else -}}
+    {{- /* No vault entry (e.g. a bare `hugo` build). Still render the gate so the
+         page looks like what it is — an encrypted post — and put the reason in a
+         banner above it. The password input stays usable; the script reports the
+         missing ciphertext when someone tries to unlock. */ -}}
+    {{- $p := site.Params.encrypt | default dict -}}
+    <div id="encrypted-content" class="password-protected-content">
+      <div
+        class="mb-6 rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800 dark:border-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300"
+        data-encrypt-missing="{{ $p.missing | default "这篇文章已加密，但密文尚未生成。请先运行 npm run encrypt。" }}"
+      >
+        {{ $p.missing | default "这篇文章已加密，但密文尚未生成。请先运行 npm run encrypt。" }}
+      </div>
+      {{ $gate | safeHTML }}
+      <div id="decrypted-content" class="hidden"></div>
+    </div>
+  {{- end -}}
+{{- end -}}

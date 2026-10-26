@@ -1,0 +1,63 @@
+{{- /*
+  RSS feed — mirrors `src/pages/rss.xml.ts` of astro-theme-pure: blog posts only,
+  full content, hero image as an enclosure, and an `atom:updated` entry so
+  readers can tell an edited post from a new one.
+*/ -}}
+{{- /* Home feeds every post (pinned first); section and taxonomy feeds list
+       only their own pages, otherwise `/tags/foo/rss.xml` would ship the whole
+       blog. */ -}}
+{{- $pages := slice -}}
+{{- if .IsHome -}}
+  {{- $pages = partialCached "blog-posts.html" . -}}
+{{- else -}}
+  {{- $pages = .Pages.ByDate.Reverse -}}
+{{- end -}}
+{{- $limit := -1 -}}
+{{- with site.Config.Services.RSS }}{{ with .Limit }}{{ $limit = . }}{{ end }}{{ end -}}
+{{- if ge $limit 1 -}}
+  {{- $pages = $pages | first $limit -}}
+{{- end -}}
+{{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+{{- with site.Params.rss.stylesheet }}{{ printf "<?xml-stylesheet href=\"%s\" type=\"text/xsl\"?>" (. | relURL) | safeHTML }}{{ end }}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:h="http://www.w3.org/TR/html4/">
+  <channel>
+    <title>{{ site.Title }}</title>
+    <link>{{ .Permalink }}</link>
+    <description>{{ site.Params.description }}</description>
+    {{- /* `hugo.Generator` emits an HTML `<meta>` tag, which is not well-formed
+           inside XML — use the plain version string instead. */ -}}
+    <generator>Hugo {{ hugo.Version }}</generator>
+    {{- with site.Language.Lang }}<language>{{ . }}</language>{{ end }}
+    {{- with .OutputFormats.Get "rss" }}
+      <atom:link href="{{ .Permalink }}" rel="self" type="application/rss+xml" />
+    {{- end }}
+    {{- if not .Date.IsZero }}<lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>{{ end }}
+    {{- range $post := $pages }}
+      {{- $image := "" -}}
+      {{- with $post.Params.heroImage }}{{ $image = partial "image-url.html" (dict "page" $post "src" .) | absURL }}{{ end }}
+      <item>
+        <title>{{ .Title }}</title>
+        <link>{{ .Permalink }}</link>
+        <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+        <guid isPermaLink="true">{{ .Permalink }}</guid>
+        <description>{{ .Description | transform.XMLEscape | safeHTML }}</description>
+        {{- /* A post that declares `password` must not ship its body in the feed —
+               the ciphertext only exists in the HTML, so the feed carries the
+               summary alone. */ -}}
+        {{- if not (.Params.password) }}
+          <content:encoded xmlns:content="http://purl.org/rss/1.0/modules/content/">{{ (printf "<![CDATA[%s]]>" .Content) | safeHTML }}</content:encoded>
+        {{- end }}
+        {{- with $image }}
+          <h:img src="{{ . }}" />
+          <enclosure url="{{ . }}" />
+        {{- end }}
+        {{- if ne (.Date.Format "2006-01-02") (.Lastmod.Format "2006-01-02") }}
+          <atom:updated>{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}</atom:updated>
+        {{- end }}
+        {{- range .GetTerms "tags" }}
+          <category>{{ .Data.Term }}</category>
+        {{- end }}
+      </item>
+    {{- end }}
+  </channel>
+</rss>

@@ -1,0 +1,12 @@
+{{- /*
+  Mermaid diagrams. Hugo picks this hook for ```mermaid fences ahead of the
+  generic `render-codeblock.html`, so the diagram never gets the code chrome
+  (line numbers, copy button…).
+
+  The source is kept in the element's text; `scripts.html` renders it client
+  side and re-renders on theme change (Mermaid bakes the palette into the SVG).
+*/ -}}
+{{- .Page.Store.Set "hasMermaid" true -}}
+<div class="mermaid-block">
+  <pre class="mermaid">{{ .Inner }}</pre>
+</div>

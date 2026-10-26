@@ -1,0 +1,14 @@
+{{- /* Renders a built-in icon from `data/icons.json`.
+       Usage: {{ partial "icon.html" (dict "name" "github" "class" "size-5") }} */ -}}
+{{- $name := .name -}}
+{{- $body := index hugo.Data.icons $name -}}
+{{- if not $body -}}
+  {{- errorf "partial icon.html: icon %q not found in data/icons.json" $name -}}
+{{- end -}}
+<svg
+  aria-hidden="true"
+  class="pure-icon {{ .class }}"
+  width="22"
+  height="22"
+  viewBox="0 0 24 24"
+  fill="currentColor">{{ $body | safeHTML }}</svg>

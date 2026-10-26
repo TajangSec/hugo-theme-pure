@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="{{ site.Params.locale.lang | default site.Language.Locale | default "en" }}">
+  <head>
+    {{- /* Render the body first: render hooks (maths, …) flag the page via
+           `.Store`, and <head> needs to know before it is written. */ -}}
+    {{- $_ := .Content -}}
+    {{ partial "head.html" . }}
+    {{ partial "theme-provider.html" . }}
+    {{ partial "styles.html" . }}
+  </head>
+
+  <body
+    class="flex justify-center bg-background text-foreground"
+    data-baseurl="{{ site.Home.RelPermalink }}"
+    {{ with partial "highlight-color.html" (dict "page" .) }}style="--highlight-color:{{ . }}"{{ end }}
+  >
+    {{- with partial "highlight-color.html" (dict "page" .) }}
+      <div
+        id="highlight-gradient"
+        class="pointer-events-none absolute start-0 top-0 z-0 h-screen w-full opacity-25"
+      ></div>
+    {{- end }}
+    <div
+      id="main-container"
+      class="w-full max-w-[70rem] min-h-[100dvh] flex flex-col justify-between"
+    >
+      {{ partial "header.html" . }}
+      <div class="flex-1 w-full">
+        {{ block "main" . }}{{ end }}
+      </div>
+      {{ partial "footer.html" . }}
+    </div>
+
+    {{ partial "scripts.html" . }}
+  </body>
+</html>

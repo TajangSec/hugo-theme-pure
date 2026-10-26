@@ -1,0 +1,28 @@
+# theme.toml — metadata for the Hugo theme registry
+name = 'Pure'
+license = 'MIT'
+licenselink = 'https://github.com/cworld1/astro-theme-pure/blob/main/LICENSE'
+description = 'A simple, fast blog theme — a Hugo port of astro-theme-pure.'
+homepage = 'https://github.com/cworld1/astro-theme-pure'
+demosite = 'https://astro-pure.js.org/'
+tags = ['blog', 'clean', 'dark mode', 'responsive', 'search', 'multilingual', 'minimal']
+features = [
+  'sticky header with scroll-aware behaviour',
+  'light / dark / system theme toggle',
+  'table of contents with reading progress',
+  'back to top with reading percentage',
+  'code blocks with titles, line numbers, copy, collapse, diffs',
+  'callouts, steps, tabs, collapses, timelines, spoilers',
+  'tag taxonomy, archives, pagination',
+  'Pagefind search (optional)',
+  'RSS with styled feed',
+]
+min_version = '0.146.0'
+
+[author]
+  name = 'Pure Lab'
+  homepage = 'https://astro-pure.js.org/'
+
+[original]
+  name = 'astro-theme-pure'
+  homepage = 'https://github.com/cworld1/astro-theme-pure'
