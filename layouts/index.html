@@ -21,14 +21,24 @@
               <p>{{ . }}</p>
             </div>
           {{- end }}
-          {{- with $p.sourceCode }}
+          {{- $source := $p.sourceCode -}}
+          {{- $sourceLink := "" -}}
+          {{- $sourceText := "Source code" -}}
+          {{- if reflect.IsMap $source -}}
+            {{- $sourceLink = $source.link | default "" -}}
+            {{- with $source.text }}{{ $sourceText = . }}{{ end -}}
+          {{- else -}}
+            {{- $sourceLink = $source | default "" -}}
+            {{- with $p.sourceCodeText }}{{ $sourceText = . }}{{ end -}}
+          {{- end -}}
+          {{- with $sourceLink }}
             <a
               class="flex flex-row items-center justify-center gap-x-2 hover:opacity-75 transition-all"
               href="{{ . }}"
               target="_blank"
             >
               {{ partial "icon.html" (dict "name" "github" "class" "size-5") }}
-              <p>Source code</p>
+              <p>{{ $sourceText }}</p>
             </a>
           {{- end }}
         </div>

@@ -198,6 +198,14 @@ git submodule update --init --recursive
 | `params.npmCDN` | 运行时依赖的 CDN 前缀 | `theme.npmCDN` |
 | `params.location` / `params.sourceCode` / `params.getTemplate` | 首页头像下方的标签与胶囊 | — |
 
+`params.sourceCode` 支持字符串（固定显示 `Source code`）或对象，自定义链接与文本：
+
+```toml
+[params.sourceCode]
+  link = 'https://github.com/you'
+  text = 'GitHub'          # 默认 "Source code"
+```
+
 ### 本地化与日期
 
 ```toml
