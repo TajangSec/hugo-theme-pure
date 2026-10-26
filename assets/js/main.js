@@ -825,7 +825,7 @@ initEncryptedPost()
     diff %= 3600000
     const minutes = Math.floor(diff / 60000)
     const seconds = Math.floor((diff % 60000) / 1000)
-    el.textContent = `${days} 天 ${hours} 小时 ${minutes} 分钟 ${seconds} 秒`
+    el.textContent = `${days} 天 ${hours} 时 ${minutes} 分 ${seconds} 秒`
   }
 
   update()
