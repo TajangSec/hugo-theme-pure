@@ -117,7 +117,20 @@ npm run css        # 重新生成 uno.css / chroma.css
 
 ## 更新主题
 
-以 git submodule 安装时，更新分三步：
+### 一条命令
+
+站点保留了 `starter/` 里的 `package.json` 脚本时：
+
+```bash
+npm run update:theme
+```
+
+它会依次完成：拉取主题最新提交 → 记录子模块指针 → 同步
+`starter/scripts/encrypt-posts.mjs` → 重新加密文章。
+
+### 手动更新
+
+不使用上面的脚本时，更新分三步：
 
 ```bash
 # 1. 拉取主题最新提交
@@ -127,7 +140,8 @@ git submodule update --remote themes/pure
 git add themes/pure
 git commit -m "chore: update theme"
 
-# 3. 重新构建
+# 3. 同步加密脚本并重新构建
+cp themes/pure/starter/scripts/encrypt-posts.mjs scripts/encrypt-posts.mjs
 npm run build        # 使用了加密或搜索
 # 或
 hugo
