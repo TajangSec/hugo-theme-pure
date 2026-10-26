@@ -12,13 +12,17 @@
 {{- if not $href }}{{ $classes = $classes | append "cursor-default" }}{{ end -}}
 {{- if eq $variant "pill" }}{{ $classes = $classes | append "rounded-xl" }}{{ end -}}
 {{- with .class }}{{ $classes = $classes | append . }}{{ end -}}
+{{- /* Back buttons prefer browser history, so returning from a post restores the
+       list page (and its pagination); the href remains the no-JS fallback. */ -}}
+{{- $dataAttrs := .dataAttrs | default "" -}}
+{{- if eq $variant "back" }}{{ $dataAttrs = trim (printf "%s data-back" $dataAttrs) " " }}{{ end -}}
 {{- if $href }}<a{{ else }}<span{{ end }}
   class="{{ delimit $classes " " }}"
   {{ with $href }}href="{{ . }}"{{ end }}
   {{ with .target }}target="{{ . }}"{{ end }}
   {{ with .id }}id="{{ . }}"{{ end }}
   {{ with .ariaLabel }}aria-label="{{ . }}"{{ end }}
-  {{ with .dataAttrs }}{{ . | safeHTMLAttr }}{{ end }}>
+  {{ with $dataAttrs }}{{ . | safeHTMLAttr }}{{ end }}>
   {{- if eq $variant "back" }}
     <svg
       xmlns="http://www.w3.org/2000/svg"

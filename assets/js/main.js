@@ -109,6 +109,28 @@ if (!customElements.get('header-component')) {
 }
 
 /* ==========================================================================
+   Back buttons — restore the previous page (including list pagination)
+   ========================================================================== */
+document.addEventListener('click', (event) => {
+  if (!(event.target instanceof Element)) return
+  const link = event.target.closest('a[data-back]')
+  if (!link) return
+
+  let sameOrigin = false
+  try {
+    sameOrigin =
+      document.referrer !== '' && new URL(document.referrer).origin === window.location.origin
+  } catch {
+    /* malformed referrer — keep the href fallback */
+  }
+
+  if (sameOrigin && window.history.length > 1) {
+    event.preventDefault()
+    window.history.back()
+  }
+})
+
+/* ==========================================================================
    Table of contents
    ========================================================================== */
 /** `getAttribute('href')` may be percent-encoded (e.g. CJK anchors), while the
