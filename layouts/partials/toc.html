@@ -5,7 +5,7 @@
          `#` for sections and `##` for subsections should indent the same way as
          `##`/`###` posts. */ -}}
   {{- $depth := .depth | default 0 -}}
-  {{- $title := .Title | plainify | trim " " -}}
+  {{- $title := .Title | plainify | strings.TrimSpace -}}
   {{- if $title }}
   <li>
     <div class="relative">
