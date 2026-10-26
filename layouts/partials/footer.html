@@ -46,6 +46,13 @@
         {{- end }}
       </div>
 
+      {{- /* Site uptime — shown between the credits and the social icons. */ -}}
+      {{- with $footer.startDate }}
+        <div class="text-sm text-muted-foreground max-sm:mt-1">
+          站点已运行:<span id="site-age" data-start="{{ . }}">…</span>
+        </div>
+      {{- end }}
+
       {{- /* Social brands */}}
       <div class="flex items-center gap-x-4">
         {{- range $social }}

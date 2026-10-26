@@ -223,6 +223,7 @@ tooltip 里的时间来自 front matter 的 `date` / `lastmod`。只写日期（
 [params.footer]
   year = '© 2026'
   credits = true                     # 显示 “Hugo & Pure theme powered”
+  startDate = '2020-01-01T00:00:00+08:00'   # 页脚「站点已运行」的起点；留空则不显示
   [[params.footer.links]]            # pos = 1 单独一行，pos = 2 追加到版权行
     title = 'Moe ICP 114514'
     link = 'https://icp.gov.moe/?keyword=114514'
