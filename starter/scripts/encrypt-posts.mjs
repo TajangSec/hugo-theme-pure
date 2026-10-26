@@ -176,6 +176,7 @@ async function main() {
       // never sees the plaintext, so record the flag from this pass and let
       // `encrypted-body.html` restore it.
       ...(/class="katex/.test(content) || /class="katex/.test(toc) ? { hasMath: true } : {}),
+      ...(/class="mermaid"/.test(content) ? { hasMermaid: true } : {}),
     }
     consumed.add(key)
   }

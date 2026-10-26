@@ -46,13 +46,17 @@
 {{- /* Mermaid diagrams (only on pages that use them) */ -}}
 {{- if .Store.Get "hasMermaid" }}
   <script type="module">
-    const blocks = [...document.querySelectorAll('pre.mermaid')]
-    blocks.forEach((el) => {
-      el.dataset.mermaidSrc = el.textContent
-    })
-
     let mermaid
     const renderMermaid = async () => {
+      /* 每次渲染时重新收集：加密文章解锁后注入的图也要包含进来。 */
+      const blocks = [...document.querySelectorAll('pre.mermaid')]
+      blocks.forEach((el) => {
+        if (el.dataset.mermaidSrc === undefined) {
+          el.dataset.mermaidSrc = el.textContent
+        }
+      })
+      if (!blocks.length) return
+
       try {
         if (!mermaid) {
           mermaid = (
@@ -80,5 +84,6 @@
     }
     renderMermaid()
     window.addEventListener('pure:theme-change', renderMermaid)
+    window.addEventListener('pure:content-injected', renderMermaid)
   </script>
 {{- end }}

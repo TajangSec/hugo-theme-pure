@@ -31,10 +31,11 @@
 {{- else -}}
   {{- $vault := index hugo.Data.encrypted $slug -}}
   {{- if $vault -}}
-    {{- /* The formula markup lives inside the ciphertext, so the normal render
-           never sets `hasMath`; the vault carries the flag from the plaintext
-           pass so `styles.html` still links KaTeX. */ -}}
+    {{- /* Formula and Mermaid markup live inside the ciphertext, so the normal
+           render never sets `hasMath` / `hasMermaid`; the vault carries the
+           flags from the plaintext pass so the assets are still loaded. */ -}}
     {{- if $vault.hasMath }}{{ $.page.Store.Set "hasMath" true }}{{ end -}}
+    {{- if $vault.hasMermaid }}{{ $.page.Store.Set "hasMermaid" true }}{{ end -}}
     {{- /* Build the attribute string as a whole: a template action sitting in
          attribute-name position gets sanitised to `ZgotmplZ` by Go's
          html/template, which silently ate `data-toc-encrypted` before. */ -}}
