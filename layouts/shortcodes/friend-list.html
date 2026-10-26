@@ -12,7 +12,8 @@
     {{- $linkList := .link_list -}}
     {{- if gt (len $linkList) 0 }}
       <div class="grid gap-3.5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-        {{- range shuffle $linkList }}
+        {{- /* Keep the order defined in `data/links.json`. */ -}}
+        {{- range $linkList }}
           <a href="{{ .link }}" target="_blank" class="no-underline">
             <div
               class="group relative h-full overflow-hidden rounded-2xl border bg-background px-2.5 py-1.5 transition-colors hover:bg-muted sm:px-4 sm:py-2"
