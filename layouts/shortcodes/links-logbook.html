@@ -1,5 +1,7 @@
 {{- /* Renders `params.links.logbook` as a timeline — used by the links page for
        the “Link History Book”. Each entry is `{ date, content }`. */ -}}
+{{- /* Referencing .Inner keeps Hugo happy when the shortcode is self-closed. */ -}}
+{{- $_ := .Inner -}}
 {{- $events := site.Params.links.logbook -}}
 {{- with $events -}}
   <div>
