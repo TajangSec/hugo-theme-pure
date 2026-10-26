@@ -5,13 +5,15 @@
          `#` for sections and `##` for subsections should indent the same way as
          `##`/`###` posts. */ -}}
   {{- $depth := .depth | default 0 -}}
+  {{- $title := .Title | plainify | trim " " -}}
+  {{- if $title }}
   <li>
     <div class="relative">
       <span
         class="absolute top-[5%] w-[2px] rounded transition-colors duration-300 [&.highlight-bg]:bg-primary [&.is-read]:bg-border"
       ></span>
       <a
-        aria-label="Scroll to section: {{ .Title | plainify }}"
+        aria-label="Scroll to section: {{ $title }}"
         class="toc-item line-clamp-2 px-3 py-1 ms-2 text-foreground/75 transition-all hover:text-foreground [&.highlight]:font-medium [&.highlight]:text-primary [&.highlight-bg-translucent]:bg-muted{{ if gt $depth 0 }} ps-7{{ end }}"
         {{ printf `href="#%s"` (replace .ID `"` "") | safeHTMLAttr }}>{{ .Title | safeHTML }}</a
       >
@@ -31,6 +33,22 @@
       </ul>
     {{- end }}
   </li>
+  {{- else }}
+    {{- /* 标题层级跳跃时（例如 ## → ####），Hugo 会插入一个空的合成节点。
+           跳过它，但把它的子标题提升到当前层级，避免目录出现空白条目/白条。 */ -}}
+    {{- with .Headings }}
+      {{- range . }}
+        {{- template "pure/toc-heading" (dict
+          "Title" .Title
+          "ID" .ID
+          "Level" .Level
+          "Headings" .Headings
+          "depth" $depth
+          )
+        }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
 {{- end -}}
 
 {{- $headings := .page.Fragments.Headings -}}
