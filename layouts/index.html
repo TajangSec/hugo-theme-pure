@@ -52,8 +52,26 @@
       {{- end }}
     </section>
 
+    {{- $hasHomeContent := gt (len (trim (string $page.Content) " \n")) 0 -}}
     <div id="content" class="animate flex flex-col gap-y-10 md:w-4/5 lg:w-5/6">
       {{ $page.Content }}
+      {{- if not $hasHomeContent }}
+        {{- /* 新站点没有 content/_index.md 时，首页自动列出最新文章，
+               避免“创建了文章但首页一片空白”的新手陷阱。 */ -}}
+        <section class="flex flex-col gap-y-5 md:flex-row md:gap-y-0">
+          <div class="text-xl font-medium md:min-w-36"><h2>Posts</h2></div>
+          <div class="flex flex-1 flex-col gap-y-3">
+            <ul class="flex flex-col gap-y-1.5 sm:gap-y-2">
+              {{- range first 5 (partialCached "blog-posts.html" $page) }}
+                <li class="flex flex-col gap-x-2 sm:flex-row">
+                  {{ partial "post-preview.html" (dict "post" .) }}
+                </li>
+              {{- end }}
+            </ul>
+            {{ partial "button.html" (dict "title" "More posts" "href" ("blog" | relLangURL) "variant" "ahead" "class" "w-fit self-end") }}
+          </div>
+        </section>
+      {{- end }}
     </div>
     {{ partial "quote.html" (dict "class" "mt-12") }}
   </main>

@@ -62,6 +62,9 @@ cp -r hugo-theme-pure /path/to/my-site/themes/pure
 hugo server
 ```
 
+首页默认渲染 `content/_index.md` 的内容；如果该文件不存在，主题会自动列出
+最近 5 篇文章。文章列表页始终在 `/blog/`，新建文章后无需额外配置即可看到。
+
 主题的样式与交互已经包含在仓库中。**不使用加密和站内搜索时，不需要 Node**：
 
 | 你要做的事 | 命令 |
