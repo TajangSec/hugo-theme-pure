@@ -20,9 +20,10 @@ features = [
 min_version = '0.146.0'
 
 [author]
-  name = 'TajangSec'
+  name = 'Tajang'
   homepage = 'https://github.com/TajangSec'
 
 [original]
-  name = 'astro-theme-pure'
+  author = 'cworld1'
   homepage = 'https://github.com/cworld1/astro-theme-pure'
+  repo = 'https://github.com/cworld1/astro-theme-pure'

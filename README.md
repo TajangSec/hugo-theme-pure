@@ -7,6 +7,11 @@
 - 作者主页：<https://github.com/TajangSec>
 - 示例站点：<https://h4cker.zip/>
 
+A fast, clean and feature-rich Hugo theme ported from
+[astro-theme-pure](https://github.com/cworld1/astro-theme-pure). It includes
+dark mode, Pagefind search, encrypted posts, KaTeX, Mermaid diagrams, RSS and
+a set of content shortcodes.
+
 ---
 
 ## 目录结构
