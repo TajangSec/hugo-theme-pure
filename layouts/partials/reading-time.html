@@ -1,12 +1,19 @@
 {{- /* Ported from `packages/pure/utils/reading-time.ts`
        Counts CJK characters individually (skipping CJK punctuation) and
-       whitespace-separated words otherwise; 200 "words" per minute. */ -}}
+       whitespace-separated words otherwise; 200 "words" per minute.
+
+       The displayed estimate is multiplied by `params.readingTime.multiplier`
+       (default 2), so the time is twice the raw calculation. */ -}}
 {{- $text := . | default "" -}}
 {{- $cjk := len (findRE `[\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}]` $text) -}}
 {{- $latin := replaceRE `[\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}]` " " $text -}}
 {{- $latin = replaceRE `[\x{3000}-\x{303F}\x{FF00}-\x{FFEF}]` " " $latin -}}
 {{- $words := add $cjk (len (findRE `\S+` $latin)) -}}
 {{- $wpm := 200 -}}
-{{- with site.Params.readingTime }}{{ with .wpm }}{{ $wpm = . }}{{ end }}{{ end -}}
-{{- $minutes := math.Ceil (div (float $words) (float $wpm)) -}}
+{{- $multiplier := 2 -}}
+{{- with site.Params.readingTime }}
+  {{- with .wpm }}{{ $wpm = . }}{{ end }}
+  {{- with .multiplier }}{{ $multiplier = . }}{{ end }}
+{{- end -}}
+{{- $minutes := mul (math.Ceil (div (float $words) (float $wpm))) $multiplier -}}
 {{- printf "%d min" (int $minutes) -}}
